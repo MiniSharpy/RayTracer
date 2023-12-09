@@ -1,27 +1,18 @@
 cmake_minimum_required (VERSION 3.12)
 
-set(ALL_FILES
-	"BuildPlease.cpp"
+add_executable(${PROJECT_NAME})
+target_sources(${PROJECT_NAME} PUBLIC main.cpp)
+
+# Create library and add modules used by the library.
+add_library(${PROJECT_NAME}_static)
+target_sources(${PROJECT_NAME}_static
+  PUBLIC
+    FILE_SET modules TYPE CXX_MODULES FILES
+    "Maths/Tuple.ixx"
 )
 
-# Copy data folder to build directory. Hard links might be better, then there's less duplicate data. CMAKE_CURRENT_SOURCE_DIR might be better instead of LIST.
-add_custom_target(copy_assets COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/Data ${CMAKE_CURRENT_BINARY_DIR}/Data)
+# Link library to core modules.
+target_link_libraries(${PROJECT_NAME}_static PRIVATE cxx-std-modules)
 
-# Includes
-find_package(SDL2 CONFIG REQUIRED)
-
-# Create project as static library to link against in testing.
-add_library(${PROJECT_NAME}_static STATIC ${ALL_FILES})
-
-target_include_directories(${PROJECT_NAME}_static PRIVATE ${CMAKE_CURRENT_LIST_DIR}) # This is neccesary for the testing includes to find the path.
-
-# Linking against static library.
-target_link_libraries(${PROJECT_NAME}_static PRIVATE SDL2::SDL2 SDL2::SDL2main)
-
-# Add source to this project's executable.
-add_executable(${PROJECT_NAME} "main.cpp")
-add_dependencies(${PROJECT_NAME} copy_assets)
-
-# Linking against executable, strictly speaking only what's included in main is neccesary.
+# Link main to library..
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_static)
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main)
