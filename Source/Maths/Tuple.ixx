@@ -1,12 +1,12 @@
 module;
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 export module Tuple;
 
-// Multiple definition errors with normal includes of std headers, including through third party libraries like GTest.
 // Requires MSVC boilerplate, https://github.com/GabrielDosReis/cmake-for-modules/tree/main
-// import std;
+// import std; // Multiple definition errors with normal includes of std headers, including through third party libraries like GTest.
 
 namespace RayTracer
 {
@@ -29,7 +29,7 @@ namespace RayTracer
 		///	With two unit vectors:
 		///	- A dot product of 1 means they are identical.
 		///	- A dot product of -1 means they point in opposite directions.
-		///	The dot product is the cosine of the angle between the two unit vectors.
+		///	The dot product is the cosine of the angle between the two vectors.
 		/// </summary>
 		static constexpr float Dot(Tuple lhs, Tuple rhs)
 		{
@@ -60,7 +60,7 @@ namespace RayTracer
 
 		/// <summary>
 		/// Add a point (W=1) and a vector (W=0), and you get another point (W=1). Essentially moving in the direction of the vector.
-		///	Add a vector (W=0) and a vector (W=0), and you get another vector (W=0). Essentially getting the change in direction between two vectors.
+		///	Add a vector (W=0) and a vector (W=0), and you get another vector (W=0). Essentially accumulating growth.
 		///	Add a point (W=1) and a point (W=1), and you get nonsense (W=2).
 		/// </summary>
 		constexpr Tuple operator+ (const Tuple& rhs) const { return { X + rhs.X, Y + rhs.Y, Z + rhs.Z, W + rhs.W }; }
@@ -124,6 +124,11 @@ namespace RayTracer
 		bool IsAVector() const
 		{
 			return W == 0.0f;
+		}
+
+		friend std::ostream& operator<<(std::ostream& os, const Tuple& tuple)
+		{
+			return os << "X:" << tuple.X << " Y:" << tuple.Y << " Z:" << tuple.Z << " W:" << tuple.W;
 		}
 	};
 }
