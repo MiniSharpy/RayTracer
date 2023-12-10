@@ -104,11 +104,23 @@ namespace RayTracer
 				return difference <= largest * epsilon ? true : false;
 			};
 
-			const Tuple& lhs = *this;
-
-			return almostEquals(lhs.X, rhs.X) && almostEquals(lhs.Y, rhs.Y) && almostEquals(lhs.Z, rhs.Z) && almostEquals(lhs.W, rhs.W);
+			return
+			almostEquals(X, rhs.X) && 
+				almostEquals(Y, rhs.Y) && 
+				almostEquals(Z, rhs.Z) &&
+				almostEquals(W, rhs.W);
 		}
-		bool operator!=(const Tuple& rhs) const { const Tuple& lhs = *this; return !(lhs == rhs); }
+		bool operator!=(const Tuple& rhs) const { return !(*this == rhs); }
+
+		float& operator[](std::size_t index)
+		{
+			return reinterpret_cast<float*>(this)[index];
+		}
+
+		const float& operator[](std::size_t index) const
+		{
+			return reinterpret_cast<const float*>(this)[index];
+		}
 
 		// METHODS
 		Tuple Normalised() const
@@ -138,9 +150,9 @@ namespace RayTracer
 			return W == 0.0f;
 		}
 
-		friend std::ostream& operator<<(std::ostream& os, const Tuple& tuple)
+		friend std::ostream& operator<<(std::ostream& os, const Tuple& rhs)
 		{
-			return os << "X:" << tuple.X << " Y:" << tuple.Y << " Z:" << tuple.Z << " W:" << tuple.W;
+			return os << "X:" << rhs.X << " Y:" << rhs.Y << " Z:" << rhs.Z << " W:" << rhs.W;
 		}
 	};
 }

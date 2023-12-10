@@ -19,7 +19,7 @@ project ("RayTracer")
 enable_testing()
 
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API aa1f7df0-828a-4fcd-9afc-2dc80491aca7)
-set (CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 
 # Pass debug symbol for Linux. Applies to sub directories.
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)

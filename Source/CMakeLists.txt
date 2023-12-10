@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.12)
+cmake_minimum_required(VERSION 3.27)
 
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PUBLIC main.cpp)
@@ -10,10 +10,7 @@ target_sources(${PROJECT_NAME}_static
     FILE_SET modules TYPE CXX_MODULES FILES
     "Maths/Tuple.ixx"
     "Rendering/Canvas.ixx"
-)
-
-# Link library to core modules.
-target_link_libraries(${PROJECT_NAME}_static PRIVATE cxx-std-modules)
+    "Maths/Matrix.ixx")
 
 # Link main to library..
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_static)

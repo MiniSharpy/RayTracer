@@ -47,6 +47,15 @@ namespace RayTracer
 		ASSERT_FLOAT_EQ(vector.W, 0.0f);
 	}
 
+	TEST(TupleTest, SubscriptOperator)
+	{
+		auto point = Tuple{ 3, -2, 5, 1 };
+		ASSERT_EQ(point[0], point.X);
+		ASSERT_EQ(point[1], point.Y);
+		ASSERT_EQ(point[2], point.Z);
+		ASSERT_EQ(point[3], point.W);
+	}
+
 	TEST(TupleTest, AdditionPointVector)
 	{
 		auto point = Tuple{ 3, -2, 5, 1 };
