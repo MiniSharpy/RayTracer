@@ -19,6 +19,7 @@ namespace RayTracer
 		// METHODS
 		static constexpr Tuple Point(float x, float y, float z) { return { x, y, z, 1.0f }; }
 		static constexpr Tuple Vector(float x, float y, float z) { return { x, y, z, 0.0f }; }
+		static constexpr Tuple Colour(float red, float green, float blue) { return { red, green, blue }; } // UB on W, but it's not exactly needed? Also, don't want to limit to 0-1 as they may need to undergo transformation before the final value.
 		static constexpr Tuple ZeroVector() { return Vector(0, 0, 0); }
 		static constexpr Tuple UnitXVector() { return Vector(1, 0, 0); }
 		static constexpr Tuple UnitYVector() { return Vector(0, 1, 0); }
@@ -53,6 +54,17 @@ namespace RayTracer
 				lhs.Z * rhs.X - lhs.X * rhs.Z,
 				lhs.X * rhs.Y - lhs.Y * rhs.X
 			);
+		}
+
+		static constexpr Tuple HadamardProduct(Tuple lhs, Tuple rhs)
+		{
+			return
+			{
+				lhs.X * rhs.X,
+				lhs.Y * rhs.Y,
+				lhs.Z * rhs.Z,
+				lhs.W * rhs.W
+			};
 		}
 
 		/*INSTANCE*/

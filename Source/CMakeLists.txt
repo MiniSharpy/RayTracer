@@ -9,6 +9,7 @@ target_sources(${PROJECT_NAME}_static
   PUBLIC
     FILE_SET modules TYPE CXX_MODULES FILES
     "Maths/Tuple.ixx"
+    "Rendering/Canvas.ixx"
 )
 
 # Link library to core modules.

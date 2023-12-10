@@ -51,7 +51,7 @@ namespace RayTracer
 	{
 		auto point = Tuple{ 3, -2, 5, 1 };
 		auto vector = Tuple{ -2, 3, 1, 0 };
-		auto resultingPoint = Tuple{ 1, 1, 6, 1};
+		auto resultingPoint = Tuple{ 1, 1, 6, 1 };
 		ASSERT_EQ(point + vector, resultingPoint);
 	}
 
@@ -181,6 +181,21 @@ namespace RayTracer
 		auto resultingVectorBA = Tuple::Vector(1, -2, 1);
 		ASSERT_EQ(Tuple::Cross(a, b), resultingVectorAB);
 		ASSERT_EQ(Tuple::Cross(b, a), resultingVectorBA);
+	}
 
+	TEST(TupleTest, ColourTuples)
+	{
+		auto colour = Tuple::Colour(-0.5, 0.4, 1.7);
+		auto resultingColour = Tuple::Colour(-0.5, 0.4, 1.7);
+		ASSERT_EQ(colour, resultingColour);
+	}
+
+	TEST(TupleTest, ColourMultiplication)
+	{
+		auto colourA = Tuple::Colour(1, 0.2, 0.4);
+		auto colourB = Tuple::Colour(0.9, 1, 0.1);
+
+		auto resultingColour = Tuple::Colour(0.9, 0.2, 0.04);
+		ASSERT_EQ(Tuple::HadamardProduct(colourA, colourB), resultingColour);
 	}
 }
