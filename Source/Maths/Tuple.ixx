@@ -1,4 +1,5 @@
 module;
+#include <cassert>
 #include <cmath>
 #include <limits>
 #include <iostream>
@@ -42,8 +43,8 @@ namespace RayTracer
 		}
 
 		/// <summary>
-		/// Cross product of vectors.
-		///	Non-commutative. Order matters.
+		/// Cross product of vectors.\n
+		///	Non-commutative. Order matters.\n
 		///	Results in a new vector perpendicular (the normal) to the original vectors.
 		/// </summary>
 		static constexpr Tuple Cross(Tuple lhs, Tuple rhs)
@@ -114,11 +115,13 @@ namespace RayTracer
 
 		float& operator[](std::size_t index)
 		{
+			assert(index < 4);
 			return reinterpret_cast<float*>(this)[index];
 		}
 
 		const float& operator[](std::size_t index) const
 		{
+			assert(index < 4);
 			return reinterpret_cast<const float*>(this)[index];
 		}
 

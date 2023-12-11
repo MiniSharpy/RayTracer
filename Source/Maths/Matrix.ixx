@@ -9,7 +9,7 @@ import Tuple;
 namespace RayTracer
 {
 	export template<size_t Dimensions>
-	struct Matrix
+		struct Matrix
 	{
 		/// <summary>
 		/// Any matrix multiplied by the identity matrix returns the same value.
@@ -26,7 +26,7 @@ namespace RayTracer
 			return identityMatrix;
 		}
 
-		std::array<float, Dimensions * Dimensions> Values;
+		std::array<float, Dimensions* Dimensions> Values;
 
 		/// <summary>
 		///	For every row in left hand side matrix:
@@ -55,7 +55,7 @@ namespace RayTracer
 			return result;
 		}
 
-		Tuple operator* (const Tuple& rhs) const requires(Dimensions == 4)
+		constexpr Tuple operator* (const Tuple& rhs) const requires(Dimensions == 4)
 		{
 			Tuple result{};
 			for (int row = 0; row < 4; ++row)
@@ -120,5 +120,68 @@ namespace RayTracer
 		{
 			return Values[index];
 		}
+
+		Matrix Transposed()
+		{
+			Matrix transposed;
+			for (int row = 0; row < Dimensions; ++row)
+			{
+				for (int column = 0; column < Dimensions; ++column)
+				{
+					transposed(row, column) = (*this)(column, row);
+				}
+			}
+
+			return transposed;
+		}
+
+		//float Determinant()  requires(Dimensions == 2) // Modules prevents specialisation being called.
+		//{
+		//	return (Values[0] * Values[3]) - (Values[1] * Values[2]);
+		//}
+
+		float Determinant() // requires(Dimensions > 2)
+		{
+			return 0;
+		}
+
+		Matrix<Dimensions - 1> Submatrix(size_t rowToRemove, size_t columnToRemove)
+		{
+			Matrix<Dimensions - 1> submatrix;
+
+			for (int row = 0; row < Dimensions - 1; ++row)
+			{
+				for (int column = 0; column < Dimensions - 1; ++column)
+				{
+					size_t rowOffset = row >= rowToRemove ? 1 : 0;
+					size_t columnOffset = column >= columnToRemove ? 1 : 0;
+					submatrix(row, column) = (*this)
+						(
+							row + rowOffset,
+							column + columnOffset
+						);
+				}
+			}
+
+			return submatrix;
+		}
+
+		float Minor(size_t rowToRemove, size_t columnToRemove)
+		{
+			return Submatrix(rowToRemove, columnToRemove).Determinant();
+		}
+
+		float Cofactor(size_t row, size_t column)
+		{
+			float minor = Minor(row, column);
+			bool isOdd = row + column % 2;
+			return isOdd ? -minor : minor;
+		}
 	};
+
+	template <>
+	float Matrix<2>::Determinant()
+	{
+		return (Values[0] * Values[3]) - (Values[1] * Values[2]);
+	}
 }
