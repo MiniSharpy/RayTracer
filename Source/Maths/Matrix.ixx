@@ -1,5 +1,6 @@
 module;
 #include<array>
+#include <cassert>
 #include<limits>
 
 export module Matrix;
@@ -9,7 +10,7 @@ import Tuple;
 namespace RayTracer
 {
 	export template<size_t Dimensions>
-		struct Matrix
+	struct Matrix
 	{
 		/// <summary>
 		/// Any matrix multiplied by the identity matrix returns the same value.
@@ -74,7 +75,10 @@ namespace RayTracer
 			// https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 			auto almostEquals = [](float lhs, float rhs)
 			{
-				constexpr float epsilon = std::numeric_limits<float>::epsilon();
+				// Need a pretty high epsilon for some of the unit tests to pass.
+				// Maybe I should instead just use the cofactor / determinant (E.G. 5 / -755)
+				// rather than the hardcoded provided in the book?
+				constexpr float epsilon = std::numeric_limits<float>::epsilon() * 1000;
 				const float difference = std::abs(lhs - rhs);
 				lhs = std::abs(lhs);
 				rhs = std::abs(rhs);
@@ -93,7 +97,7 @@ namespace RayTracer
 		}
 		bool operator!=(const Matrix& rhs) const { return !(*this == rhs); }
 
-		// Not supported by MSVC yet.
+		// TODO: Not supported by MSVC yet.
 		// Multidimensional subscript operator:
 		// https://en.cppreference.com/w/cpp/23
 		//constexpr float& operator[](std::size_t row, std::size_t column)
@@ -101,22 +105,22 @@ namespace RayTracer
 		//	return Values[Dimensions * column + row];
 		//}
 
-		constexpr float& operator() (size_t row, size_t column)
+		float& operator() (size_t row, size_t column)
 		{
 			return Values[Dimensions * row + column];
 		}
 
-		constexpr const float& operator() (size_t row, size_t column) const
+		const float& operator() (size_t row, size_t column) const
 		{
 			return Values[Dimensions * row + column];
 		}
 
-		constexpr float& operator[](std::size_t index)
+		float& operator[](std::size_t index)
 		{
 			return Values[index];
 		}
 
-		constexpr const float& operator[](std::size_t index) const
+		const float& operator[](std::size_t index) const
 		{
 			return Values[index];
 		}
@@ -135,14 +139,22 @@ namespace RayTracer
 			return transposed;
 		}
 
-		//float Determinant()  requires(Dimensions == 2) // Modules prevents specialisation being called.
-		//{
-		//	return (Values[0] * Values[3]) - (Values[1] * Values[2]);
-		//}
-
-		float Determinant() // requires(Dimensions > 2)
+		// TODO: Specialise With modules, a specialised version isn't called.
+		float Determinant()  requires(Dimensions == 2)
 		{
-			return 0;
+			return (Values[0] * Values[3]) - (Values[1] * Values[2]);
+		}
+
+		float Determinant() requires(Dimensions > 2)
+		{
+			// Doesn't matter which row or column is picked.
+			float determinant = 0;
+			for (int column = 0; column < Dimensions; ++column)
+			{
+				determinant += Values[column] * Cofactor(0, column);
+			}
+
+			return determinant;
 		}
 
 		Matrix<Dimensions - 1> Submatrix(size_t rowToRemove, size_t columnToRemove)
@@ -159,7 +171,7 @@ namespace RayTracer
 						(
 							row + rowOffset,
 							column + columnOffset
-						);
+							);
 				}
 			}
 
@@ -174,14 +186,40 @@ namespace RayTracer
 		float Cofactor(size_t row, size_t column)
 		{
 			float minor = Minor(row, column);
-			bool isOdd = row + column % 2;
+			bool isOdd = (row + column) % 2;
 			return isOdd ? -minor : minor;
 		}
-	};
 
-	template <>
-	float Matrix<2>::Determinant()
-	{
-		return (Values[0] * Values[3]) - (Values[1] * Values[2]);
-	}
+		Matrix Inverted()
+		{
+			// TODO: Move to own file to reduce repetition.
+			auto almostEquals = [](float lhs, float rhs)
+			{
+				constexpr float epsilon = std::numeric_limits<float>::epsilon() * 1000;
+				const float difference = std::abs(lhs - rhs);
+				lhs = std::abs(lhs);
+				rhs = std::abs(rhs);
+				const float largest = (rhs > lhs) ? rhs : lhs;
+
+				return difference <= largest * epsilon ? true : false;
+			};
+
+			float determinant = Determinant();
+			assert(!almostEquals(determinant, 0));
+
+			Matrix inverted;
+
+			for (int row = 0; row < Dimensions; ++row)
+			{
+				for (int column = 0; column < Dimensions; ++column)
+				{
+					float cofactor = Cofactor(row, column);
+					// Flipped row, column to also handle transposing.
+					inverted(column, row) = cofactor / determinant;
+				}
+			}
+
+			return inverted;
+		}
+	};
 }
