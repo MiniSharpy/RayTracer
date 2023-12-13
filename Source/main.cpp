@@ -75,6 +75,5 @@ void DrawDistributedPoints()
 
 int main(int, char**)
 {
-	DrawDistributedPoints();
 	return 0;
 }
