@@ -6,6 +6,8 @@ module;
 
 export module Tuple;
 
+import FloatHelper;
+
 // Requires MSVC boilerplate, https://github.com/GabrielDosReis/cmake-for-modules/tree/main
 // import std; // Multiple definition errors with normal includes of std headers, including through third party libraries like GTest.
 
@@ -93,23 +95,11 @@ namespace RayTracer
 
 		bool operator==(const Tuple& rhs) const
 		{
-			// https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
-			auto almostEquals = [](float lhs, float rhs)
-			{
-				constexpr float epsilon = std::numeric_limits<float>::epsilon();
-				const float difference = std::abs(lhs - rhs);
-				lhs = std::abs(lhs);
-				rhs = std::abs(rhs);
-				const float largest = (rhs > lhs) ? rhs : lhs;
-
-				return difference <= largest * epsilon ? true : false;
-			};
-
 			return
-			almostEquals(X, rhs.X) && 
-				almostEquals(Y, rhs.Y) && 
-				almostEquals(Z, rhs.Z) &&
-				almostEquals(W, rhs.W);
+				AlmostEquals(X, rhs.X) &&
+				AlmostEquals(Y, rhs.Y) &&
+				AlmostEquals(Z, rhs.Z) &&
+				AlmostEquals(W, rhs.W);
 		}
 		bool operator!=(const Tuple& rhs) const { return !(*this == rhs); }
 

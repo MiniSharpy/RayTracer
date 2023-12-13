@@ -11,7 +11,7 @@ target_sources(${PROJECT_NAME}_static
     "Maths/Matrix.ixx"
     "Maths/Tuple.ixx"
     "Rendering/Canvas.ixx"
-    )
+     "Maths/FloatHelper.ixx")
 
 # Link main to library..
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_static)

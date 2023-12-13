@@ -1,14 +1,26 @@
 module;
-#include<array>
+#include <array>
 #include <cassert>
-#include<limits>
+#include <limits>
+#include <iostream>
 
 export module Matrix;
 
+import FloatHelper;
 import Tuple;
 
 namespace RayTracer
 {
+	// TODO: Implement the Translation/Scale programmatically, where variadic templates are used but the required
+	// to be equal to the Dimensions - 1.
+	// Want to be homogeneous.
+	// https://www.scs.stanford.edu/~dm/blog/param-pack.html#homogeneous-function-parameter-packs
+	// Would this work?
+	// https://stackoverflow.com/a/37848654
+	// https://stackoverflow.com/a/67133714
+	// Actually, because an array is used under the hood would that force all type to be the same?
+	// Though the compiler might generate multiple different implementations and implicitly cast inside
+	// e.g. float, int, float.
 	export template<size_t Dimensions>
 	struct Matrix
 	{
@@ -25,6 +37,77 @@ namespace RayTracer
 			}
 
 			return identityMatrix;
+		}
+
+		/// <summary>
+		/// An identity matrix where the right most column is filled from top to bottom with the passed values.
+		/// </summary>
+		constexpr static Matrix TransformTranslate(float x, float y, float z) requires (Dimensions == 4)
+		{
+			Matrix translation = IdentityMatrix();
+			translation(0, 3) = x;
+			translation(1, 3) = y;
+			translation(2, 3) = z;
+
+			return translation;
+		}
+
+		/// <summary>
+		/// An identity matrix where the diagonal elements of the matrix are filled with the passed values.
+		/// </summary>
+		constexpr static Matrix TransformScale(float x, float y, float z) requires (Dimensions == 4)
+		{
+			Matrix scale = IdentityMatrix();
+			scale(0, 0) = x;
+			scale(1, 1) = y;
+			scale(2, 2) = z;
+
+			return scale;
+		}
+
+		constexpr static Matrix TransformRotateX(float radians) requires (Dimensions == 4)
+		{
+			Matrix rotate = IdentityMatrix();
+			rotate(1, 1) = cosf(radians);
+			rotate(2, 1) = sinf(radians);
+			rotate(1, 2) = -sinf(radians);
+			rotate(2, 2) = cosf(radians);
+
+			return rotate;
+		}
+
+		constexpr static Matrix TransformRotateY(float radians) requires (Dimensions == 4)
+		{
+			Matrix rotate = IdentityMatrix();
+			rotate(0, 0) = cosf(radians);
+			rotate(0, 2) = sinf(radians);
+			rotate(2, 0) = -sinf(radians);
+			rotate(2, 2) = cosf(radians);
+
+			return rotate;
+		}
+
+		constexpr static Matrix TransformRotateZ(float radians) requires (Dimensions == 4)
+		{
+			Matrix rotate = IdentityMatrix();
+			rotate(0, 0) = cosf(radians);
+			rotate(0, 1) = -sinf(radians);
+			rotate(1, 0) = sinf(radians);
+			rotate(1, 1) = cosf(radians);
+			return rotate;
+		}
+
+		constexpr static Matrix TransformShear(float xy, float xz, float yx, float yz, float zx, float zy) requires (Dimensions == 4)
+		{
+			Matrix shear = IdentityMatrix();
+			shear(0, 1) = xy;
+			shear(0, 2) = xz;
+			shear(1, 0) = yx;
+			shear(1, 2) = yz;
+			shear(2, 0) = zx;
+			shear(2, 1) = zy;
+
+			return shear;
 		}
 
 		std::array<float, Dimensions* Dimensions> Values;
@@ -56,6 +139,11 @@ namespace RayTracer
 			return result;
 		}
 
+		/// <summary>
+		/// When multiplying a translation by a vector, due to the vector's W component
+		///	the translation values of the matrix are ignored. This is because a vector is
+		///	a direction, moving it in space does not change the direction it points.
+		/// </summary>
 		constexpr Tuple operator* (const Tuple& rhs) const requires(Dimensions == 4)
 		{
 			Tuple result{};
@@ -72,25 +160,10 @@ namespace RayTracer
 
 		bool operator==(const Matrix& rhs) const
 		{
-			// https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
-			auto almostEquals = [](float lhs, float rhs)
-			{
-				// Need a pretty high epsilon for some of the unit tests to pass.
-				// Maybe I should instead just use the cofactor / determinant (E.G. 5 / -755)
-				// rather than the hardcoded provided in the book?
-				constexpr float epsilon = std::numeric_limits<float>::epsilon() * 1000;
-				const float difference = std::abs(lhs - rhs);
-				lhs = std::abs(lhs);
-				rhs = std::abs(rhs);
-				const float largest = (rhs > lhs) ? rhs : lhs;
-
-				return difference <= largest * epsilon ? true : false;
-			};
-
 			bool isAlmostEqual = true;
 			for (int i = 0; i < Dimensions * Dimensions; ++i)
 			{
-				isAlmostEqual &= almostEquals((*this)[i], rhs[i]);
+				isAlmostEqual &= AlmostEquals((*this)[i], rhs[i]);
 			}
 
 			return isAlmostEqual;
@@ -139,7 +212,7 @@ namespace RayTracer
 			return transposed;
 		}
 
-		// TODO: Specialise With modules, a specialised version isn't called.
+		// TODO: Specialise. Currently with MSVC a specialised version isn't called so this workaround is used.
 		float Determinant()  requires(Dimensions == 2)
 		{
 			return (Values[0] * Values[3]) - (Values[1] * Values[2]);
@@ -192,20 +265,8 @@ namespace RayTracer
 
 		Matrix Inverted()
 		{
-			// TODO: Move to own file to reduce repetition.
-			auto almostEquals = [](float lhs, float rhs)
-			{
-				constexpr float epsilon = std::numeric_limits<float>::epsilon() * 1000;
-				const float difference = std::abs(lhs - rhs);
-				lhs = std::abs(lhs);
-				rhs = std::abs(rhs);
-				const float largest = (rhs > lhs) ? rhs : lhs;
-
-				return difference <= largest * epsilon ? true : false;
-			};
-
 			float determinant = Determinant();
-			assert(!almostEquals(determinant, 0));
+			assert(!AlmostEquals(determinant, 0));
 
 			Matrix inverted;
 
@@ -220,6 +281,73 @@ namespace RayTracer
 			}
 
 			return inverted;
+		}
+
+		// TODO: Simplify the API. Once I've use the struct more it become obvious that some of these aren't needed.
+		Matrix& Translate(float x, float y, float z) requires (Dimensions == 4)
+		{
+			*this = TransformTranslate(x, y, z) * (*this);
+			return *this;
+		}
+
+		Matrix& RotateX(float radians) requires (Dimensions == 4)
+		{
+			*this = TransformRotateX(radians) * (*this);
+			return *this;
+		}
+
+		Matrix& Scale(float x, float y, float z) requires (Dimensions == 4)
+		{
+			*this = TransformScale(x, y, z) * (*this);
+			return *this;
+		}
+
+		Matrix& RotateY(float radians) requires (Dimensions == 4)
+		{
+			*this = TransformRotateY(radians) * (*this);
+			return *this;
+		}
+
+		Matrix& RotateZ(float radians) requires (Dimensions == 4)
+		{
+			*this = TransformRotateZ(radians) * (*this);
+			return *this;
+		}
+
+		Matrix& Shear(float xy, float xz, float yx, float yz, float zx, float zy) requires (Dimensions == 4)
+		{
+			*this = TransformShear(xy, xz, yx, yz, zx, zy) * (*this);
+			return *this;
+		}
+
+		Matrix Translated(float x, float y, float z) requires (Dimensions == 4)
+		{
+			return TransformTranslate(x, y, z) * (*this);
+		}
+
+		Matrix Scaled(float x, float y, float z) requires (Dimensions == 4)
+		{
+			return TransformScale(x, y, z) * (*this);
+		}
+
+		Matrix RotatedX(float radians) requires (Dimensions == 4)
+		{
+			return TransformRotateX(radians) * (*this);
+		}
+
+		Matrix RotatedY(float radians) requires (Dimensions == 4)
+		{
+			return TransformRotateY(radians) * (*this);
+		}
+
+		Matrix RotatedZ(float radians) requires (Dimensions == 4)
+		{
+			return TransformRotateZ(radians) * (*this);
+		}
+
+		Matrix Sheared(float xy, float xz, float yx, float yz, float zx, float zy) requires (Dimensions == 4)
+		{
+			return TransformShear(xy, xz, yx, yz, zx, zy) * (*this);
 		}
 	};
 }
