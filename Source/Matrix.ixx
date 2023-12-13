@@ -11,7 +11,7 @@ import :Tuple;
 
 namespace RayTracer
 {
-	// TODO: Implement the Translation/Scale programmatically, where variadic templates are used but the required
+	// TODO: Implement the Translation/Scale programmatically? Where variadic templates are used but the required
 	// to be equal to the Dimensions - 1.
 	// Want to be homogeneous.
 	// https://www.scs.stanford.edu/~dm/blog/param-pack.html#homogeneous-function-parameter-packs
@@ -21,6 +21,8 @@ namespace RayTracer
 	// Actually, because an array is used under the hood would that force all type to be the same?
 	// Though the compiler might generate multiple different implementations and implicitly cast inside
 	// e.g. float, int, float.
+
+	// Folowing the book, rotation, scaling, and translation in that order.
 	export template<size_t Dimensions>
 	struct Matrix
 	{
@@ -42,7 +44,7 @@ namespace RayTracer
 		/// <summary>
 		/// An identity matrix where the right most column is filled from top to bottom with the passed values.
 		/// </summary>
-		constexpr static Matrix TransformTranslate(float x, float y, float z) requires (Dimensions == 4)
+		constexpr static Matrix Translation(float x, float y, float z) requires (Dimensions == 4)
 		{
 			Matrix translation = IdentityMatrix();
 			translation(0, 3) = x;
@@ -55,7 +57,7 @@ namespace RayTracer
 		/// <summary>
 		/// An identity matrix where the diagonal elements of the matrix are filled with the passed values.
 		/// </summary>
-		constexpr static Matrix TransformScale(float x, float y, float z) requires (Dimensions == 4)
+		constexpr static Matrix Scaling(float x, float y, float z) requires (Dimensions == 4)
 		{
 			Matrix scale = IdentityMatrix();
 			scale(0, 0) = x;
@@ -65,7 +67,7 @@ namespace RayTracer
 			return scale;
 		}
 
-		constexpr static Matrix TransformRotateX(float radians) requires (Dimensions == 4)
+		constexpr static Matrix RotationX(float radians) requires (Dimensions == 4)
 		{
 			Matrix rotate = IdentityMatrix();
 			rotate(1, 1) = cosf(radians);
@@ -76,7 +78,7 @@ namespace RayTracer
 			return rotate;
 		}
 
-		constexpr static Matrix TransformRotateY(float radians) requires (Dimensions == 4)
+		constexpr static Matrix RotationY(float radians) requires (Dimensions == 4)
 		{
 			Matrix rotate = IdentityMatrix();
 			rotate(0, 0) = cosf(radians);
@@ -87,7 +89,7 @@ namespace RayTracer
 			return rotate;
 		}
 
-		constexpr static Matrix TransformRotateZ(float radians) requires (Dimensions == 4)
+		constexpr static Matrix RotationZ(float radians) requires (Dimensions == 4)
 		{
 			Matrix rotate = IdentityMatrix();
 			rotate(0, 0) = cosf(radians);
@@ -97,7 +99,7 @@ namespace RayTracer
 			return rotate;
 		}
 
-		constexpr static Matrix TransformShear(float xy, float xz, float yx, float yz, float zx, float zy) requires (Dimensions == 4)
+		constexpr static Matrix Shearing(float xy, float xz, float yx, float yz, float zx, float zy) requires (Dimensions == 4)
 		{
 			Matrix shear = IdentityMatrix();
 			shear(0, 1) = xy;
@@ -286,68 +288,68 @@ namespace RayTracer
 		// TODO: Simplify the API. Once I've use the struct more it become obvious that some of these aren't needed.
 		Matrix& Translate(float x, float y, float z) requires (Dimensions == 4)
 		{
-			*this = TransformTranslate(x, y, z) * (*this);
+			*this = Translation(x, y, z) * (*this);
 			return *this;
 		}
 
 		Matrix& RotateX(float radians) requires (Dimensions == 4)
 		{
-			*this = TransformRotateX(radians) * (*this);
+			*this = RotationX(radians) * (*this);
 			return *this;
 		}
 
 		Matrix& Scale(float x, float y, float z) requires (Dimensions == 4)
 		{
-			*this = TransformScale(x, y, z) * (*this);
+			*this = Scaling(x, y, z) * (*this);
 			return *this;
 		}
 
 		Matrix& RotateY(float radians) requires (Dimensions == 4)
 		{
-			*this = TransformRotateY(radians) * (*this);
+			*this = RotationY(radians) * (*this);
 			return *this;
 		}
 
 		Matrix& RotateZ(float radians) requires (Dimensions == 4)
 		{
-			*this = TransformRotateZ(radians) * (*this);
+			*this = RotationZ(radians) * (*this);
 			return *this;
 		}
 
 		Matrix& Shear(float xy, float xz, float yx, float yz, float zx, float zy) requires (Dimensions == 4)
 		{
-			*this = TransformShear(xy, xz, yx, yz, zx, zy) * (*this);
+			*this = Shearing(xy, xz, yx, yz, zx, zy) * (*this);
 			return *this;
 		}
 
 		Matrix Translated(float x, float y, float z) requires (Dimensions == 4)
 		{
-			return TransformTranslate(x, y, z) * (*this);
+			return Translation(x, y, z) * (*this);
 		}
 
 		Matrix Scaled(float x, float y, float z) requires (Dimensions == 4)
 		{
-			return TransformScale(x, y, z) * (*this);
+			return Scaling(x, y, z) * (*this);
 		}
 
 		Matrix RotatedX(float radians) requires (Dimensions == 4)
 		{
-			return TransformRotateX(radians) * (*this);
+			return RotationX(radians) * (*this);
 		}
 
 		Matrix RotatedY(float radians) requires (Dimensions == 4)
 		{
-			return TransformRotateY(radians) * (*this);
+			return RotationY(radians) * (*this);
 		}
 
 		Matrix RotatedZ(float radians) requires (Dimensions == 4)
 		{
-			return TransformRotateZ(radians) * (*this);
+			return RotationZ(radians) * (*this);
 		}
 
 		Matrix Sheared(float xy, float xz, float yx, float yz, float zx, float zy) requires (Dimensions == 4)
 		{
-			return TransformShear(xy, xz, yx, yz, zx, zy) * (*this);
+			return Shearing(xy, xz, yx, yz, zx, zy) * (*this);
 		}
 	};
 }

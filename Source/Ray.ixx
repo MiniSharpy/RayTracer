@@ -1,6 +1,7 @@
 export module RayTracer:Ray;
 
 import :Tuple;
+import :Matrix;
 
 namespace RayTracer
 {
@@ -13,6 +14,11 @@ namespace RayTracer
 		Tuple Position(float time) const
 		{
 			return Origin + Direction * time;
+		}
+
+		Ray Transformed(Matrix<4> matrix) const
+		{
+			return { matrix * Origin, matrix * Direction };
 		}
 	};
 }

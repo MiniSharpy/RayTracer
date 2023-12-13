@@ -8,10 +8,10 @@ add_library(${PROJECT_NAME}_static)
 target_sources(${PROJECT_NAME}_static
   PUBLIC
     FILE_SET modules TYPE CXX_MODULES FILES
-    "Maths/Matrix.ixx"
-    "Maths/Tuple.ixx"
-    "Rendering/Canvas.ixx"
-     "Maths/FloatHelper.ixx" "Maths/Ray.ixx" "Maths/Sphere.ixx" "Maths/Intersection.ixx" "RayTracer.ixx")
+    "Matrix.ixx"
+    "Tuple.ixx"
+    "Canvas.ixx"
+     "FloatHelper.ixx" "Ray.ixx" "Sphere.ixx" "Intersection.ixx" "RayTracer.ixx" "Object.ixx" )
 
 # Link main to library..
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_static)

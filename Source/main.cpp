@@ -1,6 +1,7 @@
 // Main code
 #include<iostream>
 #include<numbers>
+#include <optional>
 import RayTracer;
 
 struct Projectile
@@ -17,7 +18,7 @@ struct Environment
 
 Projectile Tick(Environment& environment, Projectile& projectile)
 {
-	return {projectile.Position + projectile.Velocity, projectile.Velocity + environment.Gravity + environment.Wind};
+	return { projectile.Position + projectile.Velocity, projectile.Velocity + environment.Gravity + environment.Wind };
 }
 
 void DrawProjectile()
@@ -56,16 +57,51 @@ void DrawDistributedPoints()
 	constexpr int radius = 200;
 	RayTracer::Canvas canvas(width, height);
 	RayTracer::Tuple point = RayTracer::Tuple::Point(0, radius, 0);
-	RayTracer::Matrix<4> translation = RayTracer::Matrix<4>::TransformTranslate(256, 256, 0);
-	RayTracer::Matrix<4> rotation = RayTracer::Matrix<4>::TransformRotateZ((2 * std::numbers::pi) 
+	RayTracer::Matrix<4> translation = RayTracer::Matrix<4>::Translation(256, 256, 0);
+	RayTracer::Matrix<4> rotation = RayTracer::Matrix<4>::RotationZ((2 * std::numbers::pi)
 		/ numberOfDots);
 
 	for (int i = 0; i < numberOfDots; ++i)
 	{
 		// TODO: Implement Tuple::Translate()? Would chaining still work alright?
 		RayTracer::Tuple centred = translation * point;
-		canvas.SetPixel(centred.X, centred.Y, {1, 1, 1});
+		canvas.SetPixel(centred.X, centred.Y, { 1, 1, 1 });
 		point = rotation * point;
+	}
+
+	canvas.WritePPM();
+}
+
+void DrawFilledCircled()
+{
+	constexpr int distance = 512;
+	constexpr int width = 512;
+	constexpr int height = 512;
+	RayTracer::Canvas canvas(width, height);
+
+	// World Position:  X=256, Y=256, Z=0.
+	RayTracer::Sphere sphere { RayTracer::Matrix<4>::Scaling(15, 30, 1)
+		.Translate(width / 2, height / 2, 0) };
+
+	// World Position: X=256, Y=256, Z=512.
+	RayTracer::Ray ray{
+		RayTracer::Tuple::Point(width / 2, height / 2, distance),
+		RayTracer::Tuple::Vector(0, 0, 0)
+	};
+
+	for (int x = 0; x < width; ++x)
+	{
+		for (int y = 0; y < height; ++y)
+		{
+			ray.Direction = RayTracer::Tuple::Point(x, y, 0) - ray.Origin;
+
+			std::optional<RayTracer::Intersection> hit = 
+				RayTracer::Intersection::Hit(sphere.Intersect(ray));
+			if (hit)
+			{
+				canvas.SetPixel(x, y, RayTracer::Tuple::Colour(1, 0, 0));
+			}
+		}
 	}
 
 	canvas.WritePPM();
@@ -73,5 +109,6 @@ void DrawDistributedPoints()
 
 int main(int, char**)
 {
+	DrawFilledCircled();
 	return 0;
 }

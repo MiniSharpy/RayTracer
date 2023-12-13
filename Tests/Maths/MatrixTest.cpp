@@ -427,7 +427,7 @@ namespace RayTracer
 
 	TEST(MatrixTest, TranslationMultiplication)
 	{
-		Matrix<4> transform = Matrix<4>::TransformTranslate(5, -3, 2);
+		Matrix<4> transform = Matrix<4>::Translation(5, -3, 2);
 		Tuple point = Tuple::Point(-3, 4, 5);
 
 		ASSERT_EQ(transform * point, Tuple::Point(2, 1, 7));
@@ -435,7 +435,7 @@ namespace RayTracer
 
 	TEST(MatrixTest, TranslationMultiplicationByInverse)
 	{
-		Matrix<4> transform = Matrix<4>::TransformTranslate(5, -3, 2);
+		Matrix<4> transform = Matrix<4>::Translation(5, -3, 2);
 		Matrix<4> inverse = transform.Inverted();
 		Tuple point = Tuple::Point(-3, 4, 5);
 
@@ -444,7 +444,7 @@ namespace RayTracer
 
 	TEST(MatrixTest, TranslationDoesNotAffectVectors)
 	{
-		Matrix<4> transform = Matrix<4>::TransformTranslate(5, -3, 2);
+		Matrix<4> transform = Matrix<4>::Translation(5, -3, 2);
 		Tuple vector = Tuple::Vector(-3, 4, 5);
 
 		ASSERT_EQ(transform * vector, vector);
@@ -452,7 +452,7 @@ namespace RayTracer
 
 	TEST(MatrixTest, ScaleMultiplication)
 	{
-		Matrix<4> transform = Matrix<4>::TransformScale(2, 3, 4);
+		Matrix<4> transform = Matrix<4>::Scaling(2, 3, 4);
 		Tuple point = Tuple::Point(-4, 6, 8);
 
 		ASSERT_EQ(transform * point, Tuple::Point(-8 , 18, 32));
@@ -460,7 +460,7 @@ namespace RayTracer
 
 	TEST(MatrixTest, ScaleMultiplicationAffectsVectors)
 	{
-		Matrix<4> transform = Matrix<4>::TransformScale(2, 3, 4);
+		Matrix<4> transform = Matrix<4>::Scaling(2, 3, 4);
 		Tuple vector = Tuple::Vector(-4, 6, 8);
 
 		ASSERT_EQ(transform * vector, Tuple::Vector(-8, 18, 32));
@@ -468,7 +468,7 @@ namespace RayTracer
 
 	TEST(MatrixTest, ScaleMultiplicationByInverse)
 	{
-		Matrix<4> transform = Matrix<4>::TransformScale(2, 3, 4);
+		Matrix<4> transform = Matrix<4>::Scaling(2, 3, 4);
 		Matrix<4> inverse = transform.Inverted();
 		Tuple vector = Tuple::Vector(-4, 6, 8);
 
@@ -477,7 +477,7 @@ namespace RayTracer
 
 	TEST(MatrixTest, ScaleReflection)
 	{
-		Matrix<4> transform = Matrix<4>::TransformScale(-1, 1, 1);
+		Matrix<4> transform = Matrix<4>::Scaling(-1, 1, 1);
 		Tuple point = Tuple::Point(2, 3, 4);
 
 		ASSERT_EQ(transform * point, Tuple::Point(-2, 3, 4));
@@ -485,8 +485,8 @@ namespace RayTracer
 
 	TEST(MatrixTest, RotateX)
 	{
-		Matrix<4> half_quarter = Matrix<4>::TransformRotateX(std::numbers::pi / 4);
-		Matrix<4> full_quarter = Matrix<4>::TransformRotateX(std::numbers::pi / 2);
+		Matrix<4> half_quarter = Matrix<4>::RotationX(std::numbers::pi / 4);
+		Matrix<4> full_quarter = Matrix<4>::RotationX(std::numbers::pi / 2);
 		Tuple point = Tuple::Point(0, 1, 0);
 
 		ASSERT_EQ(half_quarter * point, Tuple::Point(0, sqrtf(2)/2.f, sqrtf(2) / 2.f));
@@ -496,7 +496,7 @@ namespace RayTracer
 	TEST(MatrixTest, RotateXInverse)
 	{
 		Tuple point = Tuple::Point(0, 1, 0);
-		Matrix<4> half_quarter = Matrix<4>::TransformRotateX(std::numbers::pi / 4);
+		Matrix<4> half_quarter = Matrix<4>::RotationX(std::numbers::pi / 4);
 
 		ASSERT_EQ(half_quarter.Inverted() * point, Tuple::Point(0, sqrtf(2) / 2.f, -sqrtf(2) / 2.f));
 	}
@@ -504,8 +504,8 @@ namespace RayTracer
 	TEST(MatrixTest, RotateY)
 	{
 		Tuple point = Tuple::Point(0, 0, 1);
-		Matrix<4> half_quarter = Matrix<4>::TransformRotateY(std::numbers::pi / 4);
-		Matrix<4> full_quarter = Matrix<4>::TransformRotateY(std::numbers::pi / 2);
+		Matrix<4> half_quarter = Matrix<4>::RotationY(std::numbers::pi / 4);
+		Matrix<4> full_quarter = Matrix<4>::RotationY(std::numbers::pi / 2);
 
 		ASSERT_EQ(half_quarter * point, Tuple::Point(sqrtf(2) / 2.f, 0, sqrtf(2) / 2.f));
 		ASSERT_EQ(full_quarter * point, Tuple::Point(1, 0, 0));
@@ -514,8 +514,8 @@ namespace RayTracer
 	TEST(MatrixTest, RotateZ)
 	{
 		Tuple point = Tuple::Point(0, 1, 0);
-		Matrix<4> half_quarter = Matrix<4>::TransformRotateZ(std::numbers::pi / 4);
-		Matrix<4> full_quarter = Matrix<4>::TransformRotateZ(std::numbers::pi / 2);
+		Matrix<4> half_quarter = Matrix<4>::RotationZ(std::numbers::pi / 4);
+		Matrix<4> full_quarter = Matrix<4>::RotationZ(std::numbers::pi / 2);
 
 		ASSERT_EQ(half_quarter * point, Tuple::Point(-sqrtf(2) / 2.f, sqrtf(2) / 2.f, 0));
 		ASSERT_EQ(full_quarter * point, Tuple::Point(-1, 0, 0));
@@ -523,42 +523,42 @@ namespace RayTracer
 
 	TEST(MatrixTest, ShearXInProportionToY)
 	{
-		Matrix<4> transform = Matrix<4>::TransformShear(1, 0, 0, 0, 0, 0);
+		Matrix<4> transform = Matrix<4>::Shearing(1, 0, 0, 0, 0, 0);
 		Tuple point = Tuple::Point(2, 3, 4);
 		ASSERT_EQ(transform * point, Tuple::Point(5, 3, 4));
 	}
 
 	TEST(MatrixTest, ShearXInProportionToZ)
 	{
-		Matrix<4> transform = Matrix<4>::TransformShear(0, 1, 0, 0, 0, 0);
+		Matrix<4> transform = Matrix<4>::Shearing(0, 1, 0, 0, 0, 0);
 		Tuple point = Tuple::Point(2, 3, 4);
 		ASSERT_EQ(transform * point, Tuple::Point(6, 3, 4));
 	}
 
 	TEST(MatrixTest, ShearYInProportionToX)
 	{
-		Matrix<4> transform = Matrix<4>::TransformShear(0, 0, 1, 0, 0, 0);
+		Matrix<4> transform = Matrix<4>::Shearing(0, 0, 1, 0, 0, 0);
 		Tuple point = Tuple::Point(2, 3, 4);
 		ASSERT_EQ(transform * point, Tuple::Point(2, 5, 4));
 	}
 
 	TEST(MatrixTest, ShearYInProportionToZ)
 	{
-		Matrix<4> transform = Matrix<4>::TransformShear(0, 0, 0, 1, 0, 0);
+		Matrix<4> transform = Matrix<4>::Shearing(0, 0, 0, 1, 0, 0);
 		Tuple point = Tuple::Point(2, 3, 4);
 		ASSERT_EQ(transform * point, Tuple::Point(2, 7, 4));
 	}
 
 	TEST(MatrixTest, ShearZInProportionToX)
 	{
-		Matrix<4> transform = Matrix<4>::TransformShear(0, 0, 0, 0, 1, 0);
+		Matrix<4> transform = Matrix<4>::Shearing(0, 0, 0, 0, 1, 0);
 		Tuple point = Tuple::Point(2, 3, 4);
 		ASSERT_EQ(transform * point, Tuple::Point(2, 3, 6));
 	}
 
 	TEST(MatrixTest, ShearZInProportionToY)
 	{
-		Matrix<4> transform = Matrix<4>::TransformShear(0, 0, 0, 0, 0, 1);
+		Matrix<4> transform = Matrix<4>::Shearing(0, 0, 0, 0, 0, 1);
 		Tuple point = Tuple::Point(2, 3, 4);
 		ASSERT_EQ(transform * point, Tuple::Point(2, 3, 7));
 	}
@@ -566,9 +566,9 @@ namespace RayTracer
 	TEST(MatrixTest, MultipleTransformations)
 	{
 		Tuple point = Tuple::Point(1, 0, 1);
-		Matrix<4> rotation = Matrix<4>::TransformRotateX(std::numbers::pi / 2);
-		Matrix<4> scaling = Matrix<4>::TransformScale(5, 5, 5);
-		Matrix<4> translation = Matrix<4>::TransformTranslate(10, 5, 7);
+		Matrix<4> rotation = Matrix<4>::RotationX(std::numbers::pi / 2);
+		Matrix<4> scaling = Matrix<4>::Scaling(5, 5, 5);
+		Matrix<4> translation = Matrix<4>::Translation(10, 5, 7);
 
 		Tuple rotatedPoint = rotation * point;
 		ASSERT_EQ(rotatedPoint, Tuple::Point(1, -1, 0));
@@ -583,9 +583,9 @@ namespace RayTracer
 	TEST(MatrixTest, ChainedTransformations)
 	{
 		Tuple point = Tuple::Point(1, 0, 1);
-		Matrix<4> rotation = Matrix<4>::TransformRotateX(std::numbers::pi / 2);
-		Matrix<4> scaling = Matrix<4>::TransformScale(5, 5, 5);
-		Matrix<4> translation = Matrix<4>::TransformTranslate(10, 5, 7);
+		Matrix<4> rotation = Matrix<4>::RotationX(std::numbers::pi / 2);
+		Matrix<4> scaling = Matrix<4>::Scaling(5, 5, 5);
+		Matrix<4> translation = Matrix<4>::Translation(10, 5, 7);
 
 		ASSERT_EQ(translation * scaling * rotation * point, Tuple::Point(15, 0, 7));
 	}
@@ -596,9 +596,9 @@ namespace RayTracer
 		Tuple point = Tuple::Point(1, 0, 1);
 		Matrix<4> transform = Matrix<4>::IdentityMatrix(); // This value should change by the end.
 
-		Matrix<4> rotation = Matrix<4>::TransformRotateX(std::numbers::pi / 2);
-		Matrix<4> scaling = Matrix<4>::TransformScale(5, 5, 5);
-		Matrix<4> translation = Matrix<4>::TransformTranslate(10, 5, 7);
+		Matrix<4> rotation = Matrix<4>::RotationX(std::numbers::pi / 2);
+		Matrix<4> scaling = Matrix<4>::Scaling(5, 5, 5);
+		Matrix<4> translation = Matrix<4>::Translation(10, 5, 7);
 
 		ASSERT_EQ(
 			transform.RotateX(std::numbers::pi / 2)
@@ -614,9 +614,9 @@ namespace RayTracer
 
 		Matrix<4> transform = Matrix<4>::IdentityMatrix(); // This value should be the same by the end.
 
-		Matrix<4> rotation = Matrix<4>::TransformRotateX(std::numbers::pi / 2);
-		Matrix<4> scaling = Matrix<4>::TransformScale(5, 5, 5);
-		Matrix<4> translation = Matrix<4>::TransformTranslate(10, 5, 7);
+		Matrix<4> rotation = Matrix<4>::RotationX(std::numbers::pi / 2);
+		Matrix<4> scaling = Matrix<4>::Scaling(5, 5, 5);
+		Matrix<4> translation = Matrix<4>::Translation(10, 5, 7);
 
 		ASSERT_EQ(
 			transform.RotatedX(std::numbers::pi / 2)
