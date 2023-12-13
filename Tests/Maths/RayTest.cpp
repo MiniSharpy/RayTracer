@@ -1,8 +1,6 @@
 #include "gtest/gtest.h"
 
-import Tuple;
-import Ray;
-import Sphere;
+import RayTracer;
 
 namespace RayTracer
 {

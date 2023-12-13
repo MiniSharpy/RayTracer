@@ -1,12 +1,11 @@
 module;
 #include <cassert>
 #include <cmath>
-#include <limits>
 #include <iostream>
 
-export module Tuple;
+export module RayTracer:Tuple;
 
-import FloatHelper;
+import :FloatHelper;
 
 // Requires MSVC boilerplate, https://github.com/GabrielDosReis/cmake-for-modules/tree/main
 // import std; // Multiple definition errors with normal includes of std headers, including through third party libraries like GTest.

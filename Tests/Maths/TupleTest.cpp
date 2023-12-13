@@ -1,5 +1,4 @@
-import Tuple;
-
+import RayTracer;
 #include "gtest/gtest.h"
 
 

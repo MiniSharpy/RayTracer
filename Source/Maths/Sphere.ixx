@@ -1,9 +1,9 @@
 module;
 #include <vector>
 
-export module Sphere;
-import Ray;
-import Tuple;
+export module RayTracer:Sphere;
+import :Ray;
+import :Tuple;
 
 namespace RayTracer
 {

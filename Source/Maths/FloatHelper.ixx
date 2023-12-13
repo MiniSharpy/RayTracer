@@ -1,7 +1,7 @@
 module;
 #include <cstdlib>
 
-export module FloatHelper;
+export module RayTracer:FloatHelper;
 
 namespace RayTracer
 {

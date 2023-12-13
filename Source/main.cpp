@@ -1,9 +1,7 @@
 // Main code
 #include<iostream>
-#include <numbers>
-import Tuple;
-import Canvas;
-import Matrix;
+#include<numbers>
+import RayTracer;
 
 struct Projectile
 {

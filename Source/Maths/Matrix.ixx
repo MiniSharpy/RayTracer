@@ -4,10 +4,10 @@ module;
 #include <limits>
 #include <iostream>
 
-export module Matrix;
+export module RayTracer:Matrix;
 
-import FloatHelper;
-import Tuple;
+import :FloatHelper;
+import :Tuple;
 
 namespace RayTracer
 {

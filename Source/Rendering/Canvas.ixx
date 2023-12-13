@@ -4,8 +4,8 @@ module;
 #include <algorithm>
 #include <fstream>
 
-export module Canvas;
-import Tuple;
+export module RayTracer:Canvas;
+import :Tuple;
 
 namespace RayTracer
 {

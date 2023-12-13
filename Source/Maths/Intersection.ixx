@@ -1,4 +1,4 @@
-export module Intersection;
+export module RayTracer:Intersection;
 
 namespace RayTracer
 {

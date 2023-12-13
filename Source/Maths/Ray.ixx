@@ -1,6 +1,6 @@
-export module Ray;
+export module RayTracer:Ray;
 
-import Tuple;
+import :Tuple;
 
 namespace RayTracer
 {

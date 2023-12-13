@@ -1,8 +1,7 @@
 #include "gtest/gtest.h"
 #include <numbers>
 
-import Matrix;
-import Tuple;
+import RayTracer;
 
 namespace RayTracer
 {

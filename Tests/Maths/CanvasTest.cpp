@@ -1,6 +1,4 @@
-﻿import Canvas;
-import Tuple;
-
+﻿import RayTracer;
 #include "gtest/gtest.h"
 
 namespace RayTracer
