@@ -36,11 +36,6 @@ namespace RayTracer
 			Pixels[Width * y + x] = colour;
 		}
 
-		void SetPixel(int x, int y, const Tuple&& colour)
-		{
-			Pixels[Width * y + x] = colour;
-		}
-
 		void WritePPM() const
 		{
 			std::ofstream image("render.ppm");

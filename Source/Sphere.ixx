@@ -5,6 +5,7 @@ export module RayTracer:Sphere;
 import :Ray;
 import :Tuple;
 import :Intersection;
+import :Material;
 
 namespace RayTracer
 {
@@ -12,6 +13,7 @@ namespace RayTracer
 	{
 	public:
 		Matrix<4> Transform;
+		Material MaterialData; // Maybe this is why pascal case members aren't so popular in C++...
 
 		Sphere() : Transform(Matrix<4>::IdentityMatrix()) {}
 		Sphere(const Matrix<4>& transform) : Transform(transform) {}
@@ -37,6 +39,29 @@ namespace RayTracer
 				{(-b - sqrtf(discriminant)) / (2 * a), this},
 				{(-b + sqrtf(discriminant)) / (2 * a), this}
 			};
+		}
+
+		/// <summary>
+		/// Calculates the normals at the point of contact on the sphere.
+		/// </summary>
+		Tuple Normal(const Tuple& worldSpacePoint) const
+		{
+			// To handle a transformed sphere, transform the world space point
+			// to object space so that the sphere can be treated as though it
+			// were a unit sphere. This gets the normal in object space.
+			Tuple objectSpacePoint = Transform.Inverted() * worldSpacePoint;
+			Tuple objectNormal = objectSpacePoint - Tuple::Point(0, 0, 0);
+
+			// To convert from object space to normal space multiply the
+			// the object normal by the inverse transpose transform.
+			// Multiplying just by the transform matrix would get something almost
+			// right, but because the normals will no longer be perpendicular to
+			// the surface it'll appear as though the image was transformed,
+			// rather than the object.
+			Tuple worldNormal = Transform.Inverted().Transposed() * objectNormal;
+			worldNormal.W = 0; // Hack to fix any wonky w coordinate caused by a translation transform.
+
+			return worldNormal.Normalised();
 		}
 	};
 }

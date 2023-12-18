@@ -1,7 +1,7 @@
 // Main code
 #include<iostream>
 #include<numbers>
-#include <optional>
+#include<optional>
 import RayTracer;
 
 struct Projectile
@@ -80,11 +80,13 @@ void DrawFilledCircled()
 	RayTracer::Canvas canvas(width, height);
 
 	// World Position:  X=256, Y=256, Z=0.
-	RayTracer::Sphere sphere { RayTracer::Matrix<4>::Scaling(15, 30, 1)
-		.Translate(width / 2, height / 2, 0) };
+	RayTracer::Sphere sphere
+	{ RayTracer::Matrix<4>::Scaling(15, 30, 1).Translate(width / 2, height / 2, 0)
+	};
 
 	// World Position: X=256, Y=256, Z=512.
-	RayTracer::Ray ray{
+	RayTracer::Ray ray
+	{
 		RayTracer::Tuple::Point(width / 2, height / 2, distance),
 		RayTracer::Tuple::Vector(0, 0, 0)
 	};
@@ -107,8 +109,65 @@ void DrawFilledCircled()
 	canvas.WritePPM();
 }
 
+void DrawSphere()
+{
+	constexpr int width = 512;
+	constexpr int height = 512;
+	constexpr int distance = 512;
+
+	RayTracer::Canvas canvas(width, height);
+
+	RayTracer::PointLight light
+	{
+		RayTracer::Tuple::Point(-width/2, -height/2, -distance),
+		RayTracer::Tuple::Colour(1, 1, 1)
+	};
+
+	// World Position:  X=256, Y=256, Z=0.
+	RayTracer::Sphere sphere
+	{ RayTracer::Matrix<4>::Scaling(128, 128, 128).Translate(width / 2, height / 2, 0)
+	};
+	sphere.MaterialData.Colour = RayTracer::Tuple::Colour(1, 0.2, 1);
+
+	// World Position: X=256, Y=256, Z=512.
+	RayTracer::Ray ray
+	{
+		RayTracer::Tuple::Point(width / 2, height / 2, distance),
+		RayTracer::Tuple::Vector(0, 0, 0)
+	};
+
+	for (int x = 0; x < width; ++x)
+	{
+		for (int y = 0; y < height; ++y)
+		{
+			ray.Direction = (RayTracer::Tuple::Point(x, y, 0) - ray.Origin).Normalised();
+
+			std::optional<RayTracer::Intersection> hit =
+				RayTracer::Intersection::Hit(sphere.Intersect(ray));
+
+			if (hit)
+			{
+				RayTracer::Sphere& hitObject = sphere;
+				RayTracer::Tuple position = ray.Position(hit->Time);
+				RayTracer::Tuple normal = hitObject.Normal(position);
+				RayTracer::Tuple eye = ray.Direction;
+				RayTracer::Tuple surfaceColour = hitObject.MaterialData.Lighting
+				(
+					light,
+					position,
+					eye,
+					normal
+				);
+				canvas.SetPixel(x, y, surfaceColour);
+			}
+		}
+	}
+
+	canvas.WritePPM();
+}
+
 int main(int, char**)
 {
-	DrawFilledCircled();
+	DrawSphere();
 	return 0;
 }

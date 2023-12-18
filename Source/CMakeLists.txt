@@ -11,7 +11,7 @@ target_sources(${PROJECT_NAME}_static
     "Matrix.ixx"
     "Tuple.ixx"
     "Canvas.ixx"
-     "FloatHelper.ixx" "Ray.ixx" "Sphere.ixx" "Intersection.ixx" "RayTracer.ixx" "Object.ixx" )
+     "FloatHelper.ixx" "Ray.ixx" "Sphere.ixx" "Intersection.ixx" "RayTracer.ixx" "Object.ixx"  "PointLight.ixx" "Material.ixx" "World.ixx")
 
 # Link main to library..
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_static)

@@ -14,6 +14,7 @@ namespace RayTracer
 			// TODO: Ideally intersections would be kept ordered, but I don't have enough
 			// knowledge of how these objects will be used yet and so don't feel comfortable
 			// implementing a comprehensive solution.
+			// Might be worth storing a shared pointer of intersection as well so there's less passing by value.
 			std::optional<Intersection> lowestNonNegativeIntersection = {};
 			for (const Intersection& intersection : intersections)
 			{
@@ -32,7 +33,7 @@ namespace RayTracer
 		}
 
 		float Time;
-		Object* Object;
+		Object* Object; // Maybe shared_ptr? Guess if the object doesn't exist any more that's less calculations really.
 
 		bool operator==(const Intersection& rhs) const
 		{

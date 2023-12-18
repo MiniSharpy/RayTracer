@@ -1,7 +1,6 @@
 import RayTracer;
 #include "gtest/gtest.h"
 
-
 namespace RayTracer
 {
 	TEST(TupleTest, PointConstruction)
@@ -205,5 +204,21 @@ namespace RayTracer
 
 		auto resultingColour = Tuple::Colour(0.9, 0.2, 0.04);
 		ASSERT_EQ(Tuple::HadamardProduct(colourA, colourB), resultingColour);
+	}
+
+	TEST(TupleTest, ReflectAt45Degree)
+	{
+		Tuple vector = Tuple::Vector(1, -1, 0);
+		Tuple normal = Tuple::Vector(0, 1, 0);
+		Tuple reflect = vector.Reflect(normal);
+		ASSERT_EQ(reflect, Tuple::Vector(1, 1, 0));
+	}
+
+	TEST(TupleTest, ReflectOffSlantedSurface)
+	{
+		Tuple vector = Tuple::Vector(0, -1, 0);
+		Tuple normal = Tuple::Vector(sqrtf(2)/2, sqrtf(2) / 2, 0);
+		Tuple reflect = vector.Reflect(normal);
+		ASSERT_EQ(reflect, Tuple::Vector(1, 0, 0));
 	}
 }

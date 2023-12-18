@@ -23,6 +23,7 @@ namespace RayTracer
 	// e.g. float, int, float.
 
 	// Folowing the book, rotation, scaling, and translation in that order.
+	// https://gamedev.stackexchange.com/a/16721
 	export template<size_t Dimensions>
 	struct Matrix
 	{
@@ -215,12 +216,12 @@ namespace RayTracer
 		}
 
 		// TODO: Specialise. Currently with MSVC a specialised version isn't called so this workaround is used.
-		float Determinant()  requires(Dimensions == 2)
+		float Determinant() const  requires(Dimensions == 2)
 		{
 			return (Values[0] * Values[3]) - (Values[1] * Values[2]);
 		}
 
-		float Determinant() requires(Dimensions > 2)
+		float Determinant() const requires(Dimensions > 2)
 		{
 			// Doesn't matter which row or column is picked.
 			float determinant = 0;
@@ -232,7 +233,7 @@ namespace RayTracer
 			return determinant;
 		}
 
-		Matrix<Dimensions - 1> Submatrix(size_t rowToRemove, size_t columnToRemove)
+		Matrix<Dimensions - 1> Submatrix(size_t rowToRemove, size_t columnToRemove) const
 		{
 			Matrix<Dimensions - 1> submatrix;
 
@@ -253,19 +254,19 @@ namespace RayTracer
 			return submatrix;
 		}
 
-		float Minor(size_t rowToRemove, size_t columnToRemove)
+		float Minor(size_t rowToRemove, size_t columnToRemove) const
 		{
 			return Submatrix(rowToRemove, columnToRemove).Determinant();
 		}
 
-		float Cofactor(size_t row, size_t column)
+		float Cofactor(size_t row, size_t column) const
 		{
 			float minor = Minor(row, column);
 			bool isOdd = (row + column) % 2;
 			return isOdd ? -minor : minor;
 		}
 
-		Matrix Inverted()
+		Matrix Inverted() const
 		{
 			float determinant = Determinant();
 			assert(!AlmostEquals(determinant, 0));

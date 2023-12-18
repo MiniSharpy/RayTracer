@@ -31,7 +31,7 @@ namespace RayTracer
 		/// The larger the dot product, the larger the angle between vectors.
 		///	With two unit vectors:
 		///	- A dot product of 1 means they are identical.
-		///	- A dot product of -1 means they point in opposite directions.
+		///	- A dot product of -1 means they point in opposite directions.\n
 		///	The dot product is the cosine of the angle between the two vectors.
 		/// </summary>
 		static constexpr float Dot(Tuple lhs, Tuple rhs)
@@ -140,6 +140,14 @@ namespace RayTracer
 		bool IsAVector() const
 		{
 			return W == 0.0f;
+		}
+
+		Tuple Reflect(Tuple normal) const
+		{
+			assert(normal.IsAVector());
+			assert(IsAVector());
+
+			return (*this) - normal * 2 * Dot(*this, normal);
 		}
 
 		friend std::ostream& operator<<(std::ostream& os, const Tuple& rhs)
