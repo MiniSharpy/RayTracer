@@ -18,11 +18,12 @@ namespace RayTracer
 	// Would this work?
 	// https://stackoverflow.com/a/37848654
 	// https://stackoverflow.com/a/67133714
-	// Actually, because an array is used under the hood would that force all type to be the same?
+	// Actually, because an array is used under the hood would that force all types to be the same?
 	// Though the compiler might generate multiple different implementations and implicitly cast inside
 	// e.g. float, int, float.
 
-	// Folowing the book, rotation, scaling, and translation in that order.
+	// Folowing the book, rotation, scaling, and translation in that order. TODO: But this seems to differ
+	// at different point... Find out why.
 	// https://gamedev.stackexchange.com/a/16721
 	export template<size_t Dimensions>
 	struct Matrix
@@ -111,6 +112,34 @@ namespace RayTracer
 			shear(2, 1) = zy;
 
 			return shear;
+		}
+
+		/// <summary>
+		/// Returns a transform oriented to look at a specified point with a given vector as the up direction.
+		/// </summary>
+		constexpr static Matrix ViewTransform(const Tuple& from, const Tuple& to, const Tuple& up)  requires (Dimensions == 4)
+		{
+			// Compute forward vector
+			Tuple forward = (to - from).Normalised();
+
+			// Compute left vector
+			Tuple left = Tuple::Cross(forward, up.Normalised());
+
+			// Compute the true up vector, requiring up to only be approximate for easy scene framing.
+			// TODO: Unclear what the purpose of this is.
+			Tuple trueUp = Tuple::Cross(left, forward);
+
+			// Construct matrix to represent the orientation.
+			Matrix<4> orientation
+			{
+				left.X, left.Y, left.Z, 0,
+				trueUp.X, trueUp.Y, trueUp.Z, 0,
+				-forward.X, -forward.Y, -forward.Z, 0,
+				0, 0, 0, 1
+			};
+
+			// Append translation.
+			return orientation * Translation(-from.X, -from.Y, -from.Z);
 		}
 
 		std::array<float, Dimensions* Dimensions> Values;

@@ -23,7 +23,6 @@ namespace RayTracer
 			const Tuple& viewVector, const Tuple& surfaceNormal) const
 		{
 			assert(viewVector == viewVector.Normalised());
-
 			Tuple diffuseColour = Tuple::Colour(0, 0, 0);
 			Tuple specularColour = Tuple::Colour(0, 0, 0);
 
@@ -43,7 +42,7 @@ namespace RayTracer
 				// Negative dot product means light is reflecting away from the eye.
 				Tuple reflectVector = (-lightVector).Reflect(surfaceNormal);
 				float reflectDotEye = Tuple::Dot(reflectVector, viewVector);
-				if (reflectDotEye > 0) // TODO: Why is is not >= ?
+				if (reflectDotEye > 0) // TODO: Why is this not >= ?
 				{
 					// Light is most concentrated at the reflection of a light ray on shiny objects.
 					float factor = std::powf(reflectDotEye, Shininess);

@@ -203,6 +203,6 @@ namespace RayTracer
 	{
 		Sphere sphere{};
 		Material defaultMaterial;
-		ASSERT_EQ(sphere.MaterialData, defaultMaterial);
+		ASSERT_EQ(sphere.MaterialInstance, defaultMaterial);
 	}
 }

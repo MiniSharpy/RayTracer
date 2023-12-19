@@ -9,20 +9,21 @@ import :Material;
 
 namespace RayTracer
 {
-	export class Sphere : public Object
+	export class Sphere : public Shape
 	{
 	public:
-		Matrix<4> Transform;
-		Material MaterialData; // Maybe this is why pascal case members aren't so popular in C++...
+		Sphere() : Shape(Matrix<4>::IdentityMatrix()) {}
+		Sphere(const Matrix<4>& transform) : Shape(transform) {}
+		Sphere(const Matrix<4>& transform, const Material& material) : Shape(transform, material) {}
+		Sphere(const Material& material) : Shape(Matrix<4>::IdentityMatrix(), material) {}
+		Sphere(const Sphere& object) : Shape(object) {}
 
-		Sphere() : Transform(Matrix<4>::IdentityMatrix()) {}
-		Sphere(const Matrix<4>& transform) : Transform(transform) {}
-
-		std::vector<Intersection> Intersect(Ray& ray)
+		std::vector<Intersection> Intersect(const Ray& ray) override
 		{
 			// Rather than contend with transforming spheres, making calculations difficult,
 			// instead transform the ray by the inverse transform allowing the sphere to be treated as a
 			// unit sphere with its origin as 0,0,0. World-Space vs Object-Space.
+			// TODO: What do the calculations look like if you're not dealing with a unit sphere at 0,0,0?
 			const Ray transformedRay = ray.Transformed(Transform.Inverted());
 			const Tuple sphereToRay = transformedRay.Origin - Tuple::Point(0, 0, 0); // The RHS is the centre of the sphere, assumed to be world origin.
 			const float a = Tuple::Dot(transformedRay.Direction, transformedRay.Direction); // Surely this is always 1?
@@ -44,7 +45,7 @@ namespace RayTracer
 		/// <summary>
 		/// Calculates the normals at the point of contact on the sphere.
 		/// </summary>
-		Tuple Normal(const Tuple& worldSpacePoint) const
+		Tuple Normal(const Tuple& worldSpacePoint) const override
 		{
 			// To handle a transformed sphere, transform the world space point
 			// to object space so that the sphere can be treated as though it

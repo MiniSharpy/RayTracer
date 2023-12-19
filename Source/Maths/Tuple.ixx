@@ -14,6 +14,7 @@ namespace RayTracer
 {
 	/// <summary>
 	/// A struct representing a point (W=1) and a vector (W=0), with the W component determining which.
+	///	This is just a column matrix.
 	/// </summary>
 	export struct Tuple
 	{
