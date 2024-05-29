@@ -10,7 +10,6 @@ export module RayTracer:World;
 import :Shape;
 import :Sphere;
 import :PointLight;
-import :Intersection;
 import :Ray;
 
 namespace RayTracer
@@ -33,23 +32,23 @@ namespace RayTracer
 		std::vector<std::shared_ptr<Shape>> Objects;
 		std::optional<PointLight> Light;
 
-		std::vector<Intersection> Intersect(const Ray& ray) const
+		std::vector<Shape::Intersection> Intersect(const Ray& ray) const
 		{
-			std::vector<Intersection> intersections;
+			std::vector<Shape::Intersection> intersections;
 			for (const std::shared_ptr<Shape>& object : Objects)
 			{
-				std::vector<Intersection> objectIntersections = object->Intersect(ray);
+				std::vector<Shape::Intersection> objectIntersections = object->Intersect(ray);
 				intersections.insert(intersections.end(), objectIntersections.begin(), objectIntersections.end());
 			}
 
-			auto sortAscendingWithNegativesAtEnd = [](const Intersection& lhs, const Intersection& rhs)
+			auto sortAscendingWithNegativesAtEnd = [](const Shape::Intersection& lhs, const Shape::Intersection& rhs)
 			{ return (lhs.Time > 0 && rhs.Time > 0) ? rhs.Time > lhs.Time : lhs.Time > rhs.Time; };
 			std::ranges::sort(intersections, sortAscendingWithNegativesAtEnd);
 
 			return intersections;
 		}
 
-		Tuple ShadeIntersection(const Computation& computation) const
+		Tuple ShadeIntersection(const Shape::Computation& computation) const
 		{
 			// To support multiple lights iterate over all sources and add together resulting values.
 			// But how does that handle values > 1? Do they just get clipped at some point?
@@ -58,8 +57,8 @@ namespace RayTracer
 
 		Tuple ColourAt(Ray& ray) const
 		{
-			std::vector<Intersection> intersections = Intersect(ray);
-			std::optional<Intersection> intersection = Intersection::Hit(intersections);
+			std::vector<Shape::Intersection> intersections = Intersect(ray);
+			std::optional<Shape::Intersection> intersection = Shape::Intersection::Hit(intersections);
 
 			if (!intersection) { return {}; }
 

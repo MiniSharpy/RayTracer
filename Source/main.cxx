@@ -97,8 +97,8 @@ void DrawFilledCircled()
 		{
 			ray.Direction = RayTracer::Tuple::Point(x, y, 0) - ray.Origin;
 
-			std::optional<RayTracer::Intersection> hit = 
-				RayTracer::Intersection::Hit(sphere.Intersect(ray));
+			std::optional<RayTracer::Shape::Intersection> hit =
+				RayTracer::Shape::Intersection::Hit(sphere.Intersect(ray));
 			if (hit)
 			{
 				canvas.SetPixel(x, y, RayTracer::Tuple::Colour(1, 0, 0));
@@ -142,8 +142,8 @@ void DrawSphere()
 		{
 			ray.Direction = (RayTracer::Tuple::Point(x, y, 0) - ray.Origin).Normalised();
 
-			std::optional<RayTracer::Intersection> hit =
-				RayTracer::Intersection::Hit(sphere.Intersect(ray));
+			std::optional<RayTracer::Shape::Intersection> hit =
+				RayTracer::Shape::Intersection::Hit(sphere.Intersect(ray));
 
 			if (hit)
 			{

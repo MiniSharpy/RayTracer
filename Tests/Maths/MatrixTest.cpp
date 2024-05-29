@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include <algorithm>
 #include <numbers>
 
 import RayTracer;
@@ -9,9 +10,9 @@ namespace RayTracer
 	{
 		Matrix<4> matrix
 		{
-			1, 2, 3 , 4,
+			1, 2, 3, 4,
 			5.5, 6.5, 7.5, 8.5,
-			9, 10, 11 ,12,
+			9, 10, 11, 12,
 			13.5, 14.5, 15.5, 16.5
 		};
 
@@ -135,11 +136,11 @@ namespace RayTracer
 			0, 0, 0, 1
 		};
 
-		Tuple tuple{ 1, 2, 3, 1 };
+		Tuple tuple{1, 2, 3, 1};
 
 		Tuple resultingTuple = matrix * tuple;
 
-		Tuple expectedTuple = { 18, 24, 33, 1 };
+		Tuple expectedTuple = {18, 24, 33, 1};
 
 		ASSERT_EQ(resultingTuple, expectedTuple);
 	}
@@ -161,7 +162,7 @@ namespace RayTracer
 
 	TEST(MatrixTest, MultiplicationIdentityMatrixByTuple)
 	{
-		Tuple tuple{ 1, 2, 3, 4 };
+		Tuple tuple{1, 2, 3, 4};
 
 		ASSERT_EQ(Matrix<4>::IdentityMatrix() * tuple, tuple);
 	}
@@ -194,7 +195,7 @@ namespace RayTracer
 
 	TEST(MatrixTest, Determinant2x2)
 	{
-		Matrix<2> matrix = 
+		Matrix<2> matrix =
 		{
 			1, 5,
 			-3, 2
@@ -420,7 +421,6 @@ namespace RayTracer
 
 		Matrix<4> matrixAB = matrixA * matrixB;
 		Matrix<4> matrixAT = matrixAB * matrixB.Inverted();
-
 
 		ASSERT_EQ(matrixAB * matrixB.Inverted(), matrixA);
 	}

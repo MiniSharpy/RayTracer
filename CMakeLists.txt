@@ -1,7 +1,7 @@
 ﻿# CMakeList.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.28)
 
 include(FetchContent)
 FetchContent_Declare(vcpkg
@@ -16,10 +16,11 @@ set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake"
 
 project ("RayTracer")
 
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 23)
+
 enable_testing()
 
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API aa1f7df0-828a-4fcd-9afc-2dc80491aca7)
-set(CMAKE_CXX_STANDARD 23)
 
 # Pass debug symbol for Linux. Applies to sub directories.
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)

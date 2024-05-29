@@ -4,7 +4,7 @@ module;
 export module RayTracer:Sphere;
 import :Ray;
 import :Tuple;
-import :Intersection;
+import :Shape;
 import :Material;
 
 namespace RayTracer

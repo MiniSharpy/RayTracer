@@ -22,7 +22,8 @@ namespace RayTracer
 		// The size of the pixels on the canvas in world-space units.
 		float PixelSize;
 
-		void InitialiseDerived()
+		Camera(int width, int height, float fieldOfView, const Matrix<4>& transform)
+			: RenderWidth(width), RenderHeight(height), FieldOfView(fieldOfView), Transform(transform)
 		{
 			float halfView = tanf(FieldOfView / 2.f);
 			float aspectRatio = static_cast<float>(RenderWidth) / static_cast<float>(RenderHeight);
@@ -40,20 +41,8 @@ namespace RayTracer
 
 			PixelSize = (HalfWidth * 2) / RenderWidth;
 		}
-	public:
 
-		Camera(int width, int height, float fieldOfView, const Matrix<4>& transform)
-			: RenderWidth(width), RenderHeight(height), FieldOfView(fieldOfView), Transform(transform)
-		{
-			InitialiseDerived();
-		}
-
-		Camera(int width, int height, float fieldOfView)
-			: RenderWidth(width), RenderHeight(height), FieldOfView(fieldOfView), Transform(Matrix<4>::IdentityMatrix())
-		{
-			InitialiseDerived();
-
-		}
+		Camera(int width, int height, float fieldOfView) : Camera(width, height, fieldOfView, Matrix<4>::IdentityMatrix()) {}
 
 		Ray RayForPixel(int x, int y) const
 		{
