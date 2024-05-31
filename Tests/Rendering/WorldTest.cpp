@@ -14,12 +14,12 @@ namespace RayTracer
 	TEST(WorldTest, WorldConstructionExample)
 	{
 		World world = World::ExampleWorld();
-		PointLight light{ Tuple::Point(-10, 10, -10), Tuple::Colour(1, 1, 1) };
+		PointLight light{Tuple::Point(-10, 10, -10), Tuple::Colour(1, 1, 1)};
 
 		Sphere& sphere0 = static_cast<Sphere&>(*world.Objects[0].get());
 		Sphere& sphere1 = static_cast<Sphere&>(*world.Objects[1].get());
 
-		Material material{ Tuple::Colour(0.8, 1.0, 0.6) };
+		Material material{Tuple::Colour(0.8, 1.0, 0.6)};
 		material.Diffuse = 0.7;
 		material.Specular = 0.2;
 
@@ -32,8 +32,8 @@ namespace RayTracer
 	TEST(WorldTest, WorldIntersect)
 	{
 		World world = World::ExampleWorld();
-		Ray ray{ Tuple::Point(0,0,-5), Tuple::Vector(0,0,1) };
-		std::vector<Intersection> intersections = world.Intersect(ray);
+		Ray ray{Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1)};
+		std::vector<Shape::Intersection> intersections = world.Intersect(ray);
 
 		ASSERT_EQ(intersections.size(), 4);
 		ASSERT_EQ(intersections[0].Time, 4);
@@ -45,26 +45,26 @@ namespace RayTracer
 	TEST(WorldTest, ShadeIntersection)
 	{
 		World world = World::ExampleWorld();
-		world.Light = PointLight{ Tuple::Point(0, 0.25, 0), Tuple::Colour(1, 1, 1) };
+		world.Light = PointLight{Tuple::Point(0, 0.25, 0), Tuple::Colour(1, 1, 1)};
 		Ray ray{Tuple::Point(0, 0, 0), Tuple::Vector(0, 0, 1)};
 		auto& object = world.Objects[1];
-		Intersection intersection{ 0.5, object.get() };
+		Shape::Intersection intersection{0.5, object.get()};
 		auto computation = intersection.PrepareComputations(ray);
 		Tuple resultingColour = world.ShadeIntersection(computation);
-		ASSERT_EQ(resultingColour, Tuple::Colour(0.90498, 0.90498, 0.90498));
+		ASSERT_EQ(resultingColour, Tuple::Colour(0.1, 0.1, 0.1));
 	}
 
 	TEST(WorldTest, RayMiss)
 	{
 		World world = World::ExampleWorld();
-		Ray ray{ Tuple::Point(0, 0, -5), Tuple::Vector(0, 1, 0)};
+		Ray ray{Tuple::Point(0, 0, -5), Tuple::Vector(0, 1, 0)};
 		ASSERT_EQ(world.ColourAt(ray), Tuple::Colour(0, 0, 0));
 	}
 
 	TEST(WorldTest, RayHit)
 	{
 		World world = World::ExampleWorld();
-		Ray ray{ Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1) };
+		Ray ray{Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1)};
 		ASSERT_EQ(world.ColourAt(ray), Tuple::Colour(0.38066, 0.47583, 0.2855));
 	}
 
@@ -76,8 +76,55 @@ namespace RayTracer
 
 		outer->MaterialInstance.Ambient = 1;
 		inner->MaterialInstance.Ambient = 1;
-		Ray ray{ Tuple::Point(0, 0, 0.75), Tuple::Vector(0, 0, -1) };
+		Ray ray{Tuple::Point(0, 0, 0.75), Tuple::Vector(0, 0, -1)};
 		Tuple colour = world.ColourAt(ray);
 		ASSERT_EQ(colour, inner->MaterialInstance.Colour);
+	}
+
+	TEST(WorldTest, PointNonOccluded)
+	{
+		World world = World::ExampleWorld();
+		Tuple point = Tuple::Point(0, 10, 0);
+		ASSERT_FALSE(world.IsPointInShadow(point));
+	}
+
+	TEST(WorldTest, LightBetweenPointAndObject)
+	{
+		World world = World::ExampleWorld();
+		Tuple point = Tuple::Point(-20, 20, -20);
+		ASSERT_FALSE(world.IsPointInShadow(point));
+	}
+
+	TEST(WorldTest, PointBetweenLightAndObject)
+	{
+		World world = World::ExampleWorld();
+		Tuple point = Tuple::Point(-2, 2, -2);
+		ASSERT_FALSE(world.IsPointInShadow(point));
+	}
+
+	TEST(WorldTest, PointOccluded)
+	{
+		World world = World::ExampleWorld();
+		Tuple point = Tuple::Point(10, -10, 10);
+		ASSERT_TRUE(world.IsPointInShadow(point));
+	}
+
+	TEST(WorldTest, ShadeIntersectionShadow)
+	{
+		World world = World::ExampleWorld();
+		world.Light = PointLight{Tuple::Point(0, 0, -10), Tuple::Colour(1, 1, 1)};
+		Sphere& sphere0 = static_cast<Sphere&>(*world.Objects[0].get());
+		sphere0.Transform = Matrix<4>::IdentityMatrix().Translated(0, 0, 10);
+
+		Sphere& sphere1 = static_cast<Sphere&>(*world.Objects[1].get());
+		sphere1.Transform = Matrix<4>::IdentityMatrix();
+
+		Ray ray{Tuple::Point(0, 0, 5), Tuple::Vector(0, 0, 1)};
+
+		Shape::Intersection intersection{4, &sphere1};
+		Shape::Computation computation = intersection.PrepareComputations(ray);
+
+		Tuple colour = world.ShadeIntersection(computation);
+		ASSERT_EQ(colour, Tuple::Colour(0.1f, 0.1f, 0.1f));
 	}
 }

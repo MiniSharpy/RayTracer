@@ -21,6 +21,7 @@ namespace RayTracer
 			Tuple Hit;
 			Tuple EyeVector;
 			Tuple Normal;
+			Tuple HitOffset;
 			bool Inside;
 
 			Computation(const Ray &ray, float time, Shape *object) :
@@ -29,6 +30,7 @@ namespace RayTracer
 				Hit(ray.Position(time)),
 				EyeVector(-ray.Direction),
 				Normal(object->Normal(Hit)),
+				HitOffset(Hit + Normal * Epsilon),
 				Inside(false)
 			{
 				if (Tuple::Dot(Normal, EyeVector) < 0)

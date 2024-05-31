@@ -298,10 +298,8 @@ namespace RayTracer
 		Matrix Inverted() const
 		{
 			float determinant = Determinant();
-			assert(!AlmostEquals(determinant, 0));
 
 			Matrix inverted;
-
 			for (int row = 0; row < Dimensions; ++row)
 			{
 				for (int column = 0; column < Dimensions; ++column)

@@ -99,4 +99,21 @@ namespace RayTracer
 		// Only the ambient has an effect when the light source is unavailable.
 		ASSERT_EQ(result, Tuple::Colour(0.1, 0.1, 0.1));
 	}
+
+	TEST(MaterialTest, SurfaceInShadow)
+	{
+		Material material;
+		Tuple pointIlluminated = Tuple::Point(0, 0, 0);
+		Tuple viewVector = Tuple::Vector(0, 0, -1);
+		Tuple normal = Tuple::Vector(0, 0, -1);
+		PointLight light
+		{
+			Tuple::Point(0, 0, -10),
+			Tuple::Colour(1, 1, 1)
+		};
+
+		Tuple result = material.Lighting(light, pointIlluminated, viewVector, normal, true);
+		// Ambient, diffuse should be at full strength, but the specular effectively 0.
+		ASSERT_EQ(result, Tuple::Colour(.1f, .1f, .1f));
+	}
 }

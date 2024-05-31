@@ -50,9 +50,11 @@ namespace RayTracer
 
 		Tuple ShadeIntersection(const Shape::Computation& computation) const
 		{
+			bool isShadowed = IsPointInShadow(computation.HitOffset);
+
 			// To support multiple lights iterate over all sources and add together resulting values.
 			// But how does that handle values > 1? Do they just get clipped at some point?
-			return computation.ObjectInstance->MaterialInstance.Lighting(*Light, computation.Hit, computation.EyeVector, computation.Normal);
+			return computation.ObjectInstance->MaterialInstance.Lighting(*Light, computation.Hit, computation.EyeVector, computation.Normal, isShadowed);
 		}
 
 		Tuple ColourAt(Ray& ray) const
@@ -63,6 +65,25 @@ namespace RayTracer
 			if (!intersection) { return {}; }
 
 			return ShadeIntersection(intersection->PrepareComputations(ray));
+		}
+
+		bool IsPointInShadow(Tuple point) const
+		{
+			Tuple lightDirectionNonNormalised = Light->Position - point;
+			float lightDistance = (lightDirectionNonNormalised).Magnitude();
+			Tuple lightDirection = lightDirectionNonNormalised.Normalised();
+
+			Ray ray{point, lightDirection};
+
+			std::vector<Shape::Intersection> intersections = Intersect(ray);
+			std::optional<Shape::Intersection> hit = Shape::Intersection::Hit(intersections);
+
+			if (hit && hit->Time < lightDistance)
+			{
+				return true;
+			}
+
+			return false;
 		}
 	};
 }

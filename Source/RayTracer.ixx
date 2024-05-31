@@ -10,4 +10,4 @@ export import :PointLight;
 export import :Material;
 export import :World;
 export import :Camera;
-// export import :FloatHelper; // Don't really need this accessible outside of the module.
+export import :FloatHelper;

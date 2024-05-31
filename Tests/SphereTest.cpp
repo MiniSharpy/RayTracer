@@ -20,10 +20,10 @@ namespace RayTracer
 
 	TEST(SphereTest, SphereScaledIntersectRay)
 	{
-		Ray ray{ Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1) };
+		Ray ray{Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
 		sphere.Transform = Matrix<4>::Scaling(2, 2, 2);
-		std::vector<Intersection> intersections = sphere.Intersect(ray);
+		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 
 		ASSERT_EQ(intersections.size(), 2);
 		ASSERT_FLOAT_EQ(intersections[0].Time, 3);
@@ -32,19 +32,19 @@ namespace RayTracer
 
 	TEST(SphereTest, SphereTranslatedIntersectRay)
 	{
-		Ray ray{ Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1) };
+		Ray ray{Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
 		sphere.Transform = Matrix<4>::Translation(5, 0, 0);
-		std::vector<Intersection> intersections = sphere.Intersect(ray);
+		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 
 		ASSERT_EQ(intersections.size(), 0);
 	}
 
 	TEST(SphereTest, SphereIntersectAtTwoPoints)
 	{
-		Ray ray = { Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1) };
+		Ray ray = {Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
-		std::vector<Intersection> intersections = sphere.Intersect(ray);
+		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 		ASSERT_EQ(intersections.size(), 2);
 		ASSERT_FLOAT_EQ(intersections[0].Time, 4);
 		ASSERT_FLOAT_EQ(intersections[1].Time, 6.0);
@@ -53,9 +53,9 @@ namespace RayTracer
 
 	TEST(SphereTest, SphereIntersectAtTangent)
 	{
-		Ray ray = { Tuple::Point(0, 1, -5), Tuple::Vector(0, 0, 1) };
+		Ray ray = {Tuple::Point(0, 1, -5), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
-		std::vector<Intersection> intersections = sphere.Intersect(ray);
+		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 		ASSERT_EQ(intersections.size(), 2);
 		ASSERT_FLOAT_EQ(intersections[0].Time, 5);
 		ASSERT_FLOAT_EQ(intersections[1].Time, 5);
@@ -64,17 +64,17 @@ namespace RayTracer
 
 	TEST(SphereTest, SphereIntersectMiss)
 	{
-		Ray ray = { Tuple::Point(0, 2, -5), Tuple::Vector(0, 0, 1) };
+		Ray ray = {Tuple::Point(0, 2, -5), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
-		std::vector<Intersection> intersections = sphere.Intersect(ray);
+		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 		ASSERT_EQ(intersections.size(), 0);
 	}
 
 	TEST(SphereTest, SphereIntersectOriginatesInsideSphere)
 	{
-		Ray ray = { Tuple::Point(0, 0, 0), Tuple::Vector(0, 0, 1) };
+		Ray ray = {Tuple::Point(0, 0, 0), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
-		std::vector<Intersection> intersections = sphere.Intersect(ray);
+		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 		ASSERT_EQ(intersections.size(), 2);
 		ASSERT_FLOAT_EQ(intersections[0].Time, -1);
 		ASSERT_FLOAT_EQ(intersections[1].Time, 1);
@@ -83,9 +83,9 @@ namespace RayTracer
 
 	TEST(SphereTest, SphereIntersectOriginatesInfrontOfSphere)
 	{
-		Ray ray = { Tuple::Point(0, 0, 5), Tuple::Vector(0, 0, 1) };
+		Ray ray = {Tuple::Point(0, 0, 5), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
-		std::vector<Intersection> intersections = sphere.Intersect(ray);
+		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 		ASSERT_EQ(intersections.size(), 2);
 		ASSERT_FLOAT_EQ(intersections[0].Time, -6);
 		ASSERT_FLOAT_EQ(intersections[1].Time, -4);
@@ -94,9 +94,9 @@ namespace RayTracer
 
 	TEST(SphereTest, AggregatingIntersection)
 	{
-		Ray ray = { Tuple::Point(0, 0, 5), Tuple::Vector(0, 0, 1) };
+		Ray ray = {Tuple::Point(0, 0, 5), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
-		std::vector<Intersection> intersections = sphere.Intersect(ray);
+		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 		ASSERT_EQ(intersections.size(), 2);
 		ASSERT_FLOAT_EQ(intersections[0].Time, -6);
 		ASSERT_FLOAT_EQ(intersections[1].Time, -4);
@@ -105,10 +105,10 @@ namespace RayTracer
 	TEST(SphereTest, HitWhenPositiveT)
 	{
 		Sphere sphere;
-		Intersection intersectionA = Intersection{ 1, &sphere };
-		Intersection intersectionB = Intersection{ 2, &sphere };
-		std::vector<Intersection> intersections = { intersectionB, intersectionA };
-		std::optional<Intersection> hit = Intersection::Hit(intersections);
+		Shape::Intersection intersectionA = Shape::Intersection{1, &sphere};
+		Shape::Intersection intersectionB = Shape::Intersection{2, &sphere};
+		std::vector<Shape::Intersection> intersections = {intersectionB, intersectionA};
+		std::optional<Shape::Intersection> hit = Shape::Intersection::Hit(intersections);
 
 		ASSERT_TRUE(hit);
 		ASSERT_EQ(*hit, intersectionA);
@@ -117,10 +117,10 @@ namespace RayTracer
 	TEST(SphereTest, HitWhenNegativeT)
 	{
 		Sphere sphere;
-		Intersection intersectionA = Intersection{ -1, &sphere };
-		Intersection intersectionB = Intersection{ 2, &sphere };
-		std::vector<Intersection> intersections = { intersectionB, intersectionA };
-		std::optional<Intersection> hit = Intersection::Hit(intersections);
+		Shape::Intersection intersectionA = Shape::Intersection{-1, &sphere};
+		Shape::Intersection intersectionB = Shape::Intersection{2, &sphere};
+		std::vector<Shape::Intersection> intersections = {intersectionB, intersectionA};
+		std::optional<Shape::Intersection> hit = Shape::Intersection::Hit(intersections);
 		ASSERT_TRUE(hit);
 		ASSERT_EQ(*hit, intersectionB);
 	}
@@ -128,23 +128,23 @@ namespace RayTracer
 	TEST(SphereTest, HitWhenAllNegativeT)
 	{
 		Sphere sphere;
-		Intersection intersectionA = Intersection{ -2, &sphere };
-		Intersection intersectionB = Intersection{ -1, &sphere };
-		std::vector<Intersection> intersections = { intersectionB, intersectionA };
-		std::optional<Intersection> hit = Intersection::Hit(intersections);
+		Shape::Intersection intersectionA = Shape::Intersection{-2, &sphere};
+		Shape::Intersection intersectionB = Shape::Intersection{-1, &sphere};
+		std::vector<Shape::Intersection> intersections = {intersectionB, intersectionA};
+		std::optional<Shape::Intersection> hit = Shape::Intersection::Hit(intersections);
 		ASSERT_FALSE(hit);
 	}
 
 	TEST(SphereTest, HitIsLowestNonNegativeIntersection)
 	{
 		Sphere sphere{};
-		Intersection intersectionA = Intersection{ 5, &sphere };
-		Intersection intersectionB = Intersection{ 7, &sphere };
-		Intersection intersectionC = Intersection{ -3, &sphere };
-		Intersection intersectionD = Intersection{ 2, &sphere };
+		Shape::Intersection intersectionA = Shape::Intersection{5, &sphere};
+		Shape::Intersection intersectionB = Shape::Intersection{7, &sphere};
+		Shape::Intersection intersectionC = Shape::Intersection{-3, &sphere};
+		Shape::Intersection intersectionD = Shape::Intersection{2, &sphere};
 
-		std::vector<Intersection> intersections = { intersectionA, intersectionB, intersectionC, intersectionD };
-		std::optional<Intersection> hit = Intersection::Hit(intersections);
+		std::vector<Shape::Intersection> intersections = {intersectionA, intersectionB, intersectionC, intersectionD};
+		std::optional<Shape::Intersection> hit = Shape::Intersection::Hit(intersections);
 		ASSERT_TRUE(hit);
 		ASSERT_EQ(*hit, intersectionD);
 	}
@@ -194,7 +194,7 @@ namespace RayTracer
 
 	TEST(SphereTest, NormalTransformedSphere)
 	{
-		Sphere sphere{ Matrix<4>::Scaling(1, 0.5, 1) * Matrix<4>::RotationZ(std::numbers::pi / 5) };
+		Sphere sphere{Matrix<4>::Scaling(1, 0.5, 1) * Matrix<4>::RotationZ(std::numbers::pi / 5)};
 		Tuple normal = sphere.Normal(Tuple::Point(0, sqrtf(2) / 2, -sqrtf(2) / 2));
 		ASSERT_EQ(normal, Tuple::Vector(0, 0.97014, -0.24254));
 	}

@@ -20,7 +20,7 @@ namespace RayTracer
 
 		/// <returns>The colour of the surface at the specified point.</returns>
 		Tuple Lighting(const PointLight& light, const Tuple& surfacePointViewed, 
-			const Tuple& viewVector, const Tuple& surfaceNormal) const
+			const Tuple& viewVector, const Tuple& surfaceNormal, bool inShadow = false) const
 		{
 			assert(viewVector == viewVector.Normalised());
 			Tuple diffuseColour = Tuple::Colour(0, 0, 0);
@@ -31,16 +31,16 @@ namespace RayTracer
 
 			// When there's a negative dot product the light is on the other side of the surface and diffuse
 			// and specular are black.
-			Tuple lightVector = (light.Position - surfacePointViewed).Normalised();
-			float lightDotNormal = Tuple::Dot(lightVector, surfaceNormal);
-			if (lightDotNormal >= 0) 
+			Tuple lightDirection = (light.Position - surfacePointViewed).Normalised();
+			float lightDotNormal = Tuple::Dot(lightDirection, surfaceNormal);
+			if (!inShadow && lightDotNormal >= 0)
 			{
 				// Diffuse colour is determined in large part from angle from the light source to
 				// the illuminated point as more light rays would strike the object.
 				diffuseColour = effectiveColourOfSurface * Diffuse * lightDotNormal;
 
 				// Negative dot product means light is reflecting away from the eye.
-				Tuple reflectVector = (-lightVector).Reflect(surfaceNormal);
+				Tuple reflectVector = (-lightDirection).Reflect(surfaceNormal);
 				float reflectDotEye = Tuple::Dot(reflectVector, viewVector);
 				if (reflectDotEye > 0) // TODO: Why is this not >= ?
 				{

@@ -1,4 +1,5 @@
-// Main code
+// Working On: "Chapter 8: Shadows"
+
 #include<iostream>
 #include<numbers>
 #include<optional>
@@ -214,7 +215,7 @@ void DrawSpheres()
 	};
 
 	// TODO: Does it even make sense to have a camera not attached to a world?
-	RayTracer::Camera camera(100, 50, std::numbers::pi / 3);
+	RayTracer::Camera camera(512, 512, std::numbers::pi / 3);
 	camera.Transform = RayTracer::Matrix<4>::ViewTransform
 	(
 		RayTracer::Tuple::Point(0, 1.5, -5),
