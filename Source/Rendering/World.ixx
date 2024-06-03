@@ -22,8 +22,8 @@ namespace RayTracer
 			PointLight light{ Tuple::Point(-10, 10, -10), Tuple::Colour(1, 1, 1) };
 
 			std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>( Material{Tuple::Colour(0.8, 1.0, 0.6)});
-			sphere1->MaterialInstance.Diffuse = 0.7;
-			sphere1->MaterialInstance.Specular = 0.2;
+			sphere1->Material_.Diffuse = 0.7;
+			sphere1->Material_.Specular = 0.2;
 			std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>( Matrix<4>::Scaling(0.5, 0.5, 0.5) );
 
 			return { {sphere1, sphere2}, light };
@@ -54,7 +54,7 @@ namespace RayTracer
 
 			// To support multiple lights iterate over all sources and add together resulting values.
 			// But how does that handle values > 1? Do they just get clipped at some point?
-			return computation.ObjectInstance->MaterialInstance.Lighting(*Light, computation.Hit, computation.EyeVector, computation.Normal, isShadowed);
+			return computation.ObjectInstance->Material_.Lighting(*Light, computation.Hit, computation.EyeVector, computation.Normal, isShadowed);
 		}
 
 		Tuple ColourAt(Ray& ray) const

@@ -43,7 +43,7 @@ namespace RayTracer
 		Ray ray{Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1)};
 
 		Sphere sphere{};
-		sphere.Transform = Matrix<4>::IdentityMatrix().Translated(0, 0, 1);
+		sphere.Transform_ = Matrix<4>::IdentityMatrix().Translated(0, 0, 1);
 
 		Shape::Intersection intersection{5, &sphere};
 

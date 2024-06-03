@@ -1,4 +1,4 @@
-// Working On: "Chapter 8: Shadows"
+// Working On: "Chapter 9: Planes. PG 119"
 
 #include<iostream>
 #include<numbers>
@@ -128,7 +128,7 @@ void DrawSphere()
 	RayTracer::Sphere sphere
 	{ RayTracer::Matrix<4>::Scaling(128, 128, 128).Translate(width / 2, height / 2, 0)
 	};
-	sphere.MaterialInstance.Colour = RayTracer::Tuple::Colour(1, 0.2, 1);
+	sphere.Material_.Colour = RayTracer::Tuple::Colour(1, 0.2, 1);
 
 	// World Position: X=256, Y=256, Z=512.
 	RayTracer::Ray ray
@@ -152,7 +152,7 @@ void DrawSphere()
 				RayTracer::Tuple position = ray.Position(hit->Time);
 				RayTracer::Tuple normal = hitObject.Normal(position);
 				RayTracer::Tuple eye = -ray.Direction;
-				RayTracer::Tuple surfaceColour = hitObject.MaterialInstance.Lighting
+				RayTracer::Tuple surfaceColour = hitObject.Material_.Lighting
 				(
 					light,
 					position,
@@ -170,39 +170,39 @@ void DrawSphere()
 void DrawSpheres()
 {
 	std::shared_ptr<RayTracer::Sphere> floor = std::make_shared<RayTracer::Sphere>();
-	floor->Transform.Scale(10, 0.01, 10);
-	floor->MaterialInstance.Colour = RayTracer::Tuple::Colour(1, 0.9, 0.9);
-	floor->MaterialInstance.Specular = 0;
+	floor->Transform_.Scale(10, 0.03, 10);
+	floor->Material_.Colour = RayTracer::Tuple::Colour(1, 0.9, 0.9);
+	floor->Material_.Specular = 0;
 
 	std::shared_ptr<RayTracer::Sphere> leftWall = std::make_shared<RayTracer::Sphere>();
-	leftWall->Transform.Scale(10, 0.01, 10)
+	leftWall->Transform_.Scale(10, 0.03, 10)
 		.RotateX(std::numbers::pi / 2).RotateY(-std::numbers::pi / 4)
 		.Translate(0, 0, 5);
-	leftWall->MaterialInstance = floor->MaterialInstance;
+	leftWall->Material_ = floor->Material_;
 
 	std::shared_ptr<RayTracer::Sphere> rightWall = std::make_shared<RayTracer::Sphere>();
-	rightWall->Transform.Scale(10, 0.01, 10)
+	rightWall->Transform_.Scale(10, 0.03, 10)
 		.RotateX(std::numbers::pi / 2).RotateY(std::numbers::pi / 4)
 		.Translate(0, 0, 5);
-	rightWall->MaterialInstance = floor->MaterialInstance;
+	rightWall->Material_ = floor->Material_;
 
 	std::shared_ptr<RayTracer::Sphere> middle = std::make_shared<RayTracer::Sphere>();
-	middle->Transform.Translate(-0.5, 1, 0.5);
-	middle->MaterialInstance.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
-	middle->MaterialInstance.Diffuse = 0.7;
-	middle->MaterialInstance.Specular = 0.3;
+	middle->Transform_.Translate(-0.5, 1, 0.5);
+	middle->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
+	middle->Material_.Diffuse = 0.7;
+	middle->Material_.Specular = 0.3;
 
 	std::shared_ptr<RayTracer::Sphere> right = std::make_shared<RayTracer::Sphere>();
-	right->Transform.Scale(0.5, 0.5, 0.5).Translate(1.5, 0.5, 0.1);
-	right->MaterialInstance.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
-	right->MaterialInstance.Diffuse = 0.7;
-	right->MaterialInstance.Specular = 0.3;
+	right->Transform_.Scale(0.5, 0.5, 0.5).Translate(1.5, 0.5, 0.1);
+	right->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
+	right->Material_.Diffuse = 0.7;
+	right->Material_.Specular = 0.3;
 
 	std::shared_ptr<RayTracer::Sphere> left = std::make_shared<RayTracer::Sphere>();
-	left->Transform.Scale(0.33, 0.33, 0.33).Translate(-1.5, 0.33, -0.75);
-	left->MaterialInstance.Colour = RayTracer::Tuple::Colour(1, 0.8, 0.1);
-	left->MaterialInstance.Diffuse = 0.7;
-	left->MaterialInstance.Specular = 0.3;
+	left->Transform_.Scale(0.33, 0.33, 0.33).Translate(-1.5, 0.33, -0.75);
+	left->Material_.Colour = RayTracer::Tuple::Colour(1, 0.8, 0.1);
+	left->Material_.Diffuse = 0.7;
+	left->Material_.Specular = 0.3;
 
 	RayTracer::World world
 	{
@@ -227,8 +227,55 @@ void DrawSpheres()
 	canvas.WritePPM();
 }
 
+void Chapter9()
+{
+	std::shared_ptr<RayTracer::Plane> floor = std::make_shared<RayTracer::Plane>();
+	floor->Material_.Colour = RayTracer::Tuple::Colour(1, 0.9, 0.9);
+	floor->Material_.Specular = 0;
+
+	std::shared_ptr<RayTracer::Sphere> middle = std::make_shared<RayTracer::Sphere>();
+	middle->Transform_.Translate(-0.5, 1, 0.5);
+	middle->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
+	middle->Material_.Diffuse = 0.7;
+	middle->Material_.Specular = 0.3;
+
+	std::shared_ptr<RayTracer::Sphere> right = std::make_shared<RayTracer::Sphere>();
+	right->Transform_.Scale(0.5, 0.5, 0.5).Translate(1.5, 0.5, 0.1);
+	right->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
+	right->Material_.Diffuse = 0.7;
+	right->Material_.Specular = 0.3;
+
+	std::shared_ptr<RayTracer::Sphere> left = std::make_shared<RayTracer::Sphere>();
+	left->Transform_.Scale(0.33, 0.33, 0.33).Translate(-1.5, 0.33, -0.75);
+	left->Material_.Colour = RayTracer::Tuple::Colour(1, 0.8, 0.1);
+	left->Material_.Diffuse = 0.7;
+	left->Material_.Specular = 0.3;
+
+	RayTracer::World world
+	{
+	{ floor, left, middle, right },
+		RayTracer::PointLight
+		{
+			RayTracer::Tuple::Point(-10, 10, -10),
+			RayTracer::Tuple::Colour(1, 1, 1)
+		}
+	};
+
+	// TODO: Does it even make sense to have a camera not attached to a world?
+	RayTracer::Camera camera(512, 512, std::numbers::pi / 3);
+	camera.Transform = RayTracer::Matrix<4>::ViewTransform
+	(
+		RayTracer::Tuple::Point(0, 1.5, -5),
+		RayTracer::Tuple::Point(0, 1, 0),
+		RayTracer::Tuple::Vector(0, 1, 0)
+	);
+
+	RayTracer::Canvas canvas = camera.Render(world);
+	canvas.WritePPM();
+}
+
 int main(int, char**)
 {
-	DrawSpheres();
+	Chapter9();
 	return 0;
 }

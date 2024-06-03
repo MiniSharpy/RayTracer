@@ -24,9 +24,9 @@ namespace RayTracer
 		material.Specular = 0.2;
 
 		ASSERT_EQ(world.Light, light);
-		ASSERT_EQ(sphere0.Transform, Matrix<4>::IdentityMatrix());
-		ASSERT_EQ(sphere0.MaterialInstance, material);
-		ASSERT_EQ(sphere1.Transform, Matrix<4>::Scaling(0.5, 0.5, 0.5));
+		ASSERT_EQ(sphere0.Transform_, Matrix<4>::IdentityMatrix());
+		ASSERT_EQ(sphere0.Material_, material);
+		ASSERT_EQ(sphere1.Transform_, Matrix<4>::Scaling(0.5, 0.5, 0.5));
 	}
 
 	TEST(WorldTest, WorldIntersect)
@@ -74,11 +74,11 @@ namespace RayTracer
 		auto& outer = world.Objects[0];
 		auto& inner = world.Objects[1];
 
-		outer->MaterialInstance.Ambient = 1;
-		inner->MaterialInstance.Ambient = 1;
+		outer->Material_.Ambient = 1;
+		inner->Material_.Ambient = 1;
 		Ray ray{Tuple::Point(0, 0, 0.75), Tuple::Vector(0, 0, -1)};
 		Tuple colour = world.ColourAt(ray);
-		ASSERT_EQ(colour, inner->MaterialInstance.Colour);
+		ASSERT_EQ(colour, inner->Material_.Colour);
 	}
 
 	TEST(WorldTest, PointNonOccluded)
@@ -114,10 +114,10 @@ namespace RayTracer
 		World world = World::ExampleWorld();
 		world.Light = PointLight{Tuple::Point(0, 0, -10), Tuple::Colour(1, 1, 1)};
 		Sphere& sphere0 = static_cast<Sphere&>(*world.Objects[0].get());
-		sphere0.Transform = Matrix<4>::IdentityMatrix().Translated(0, 0, 10);
+		sphere0.Transform_ = Matrix<4>::IdentityMatrix().Translated(0, 0, 10);
 
 		Sphere& sphere1 = static_cast<Sphere&>(*world.Objects[1].get());
-		sphere1.Transform = Matrix<4>::IdentityMatrix();
+		sphere1.Transform_ = Matrix<4>::IdentityMatrix();
 
 		Ray ray{Tuple::Point(0, 0, 5), Tuple::Vector(0, 0, 1)};
 

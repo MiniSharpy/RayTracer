@@ -24,7 +24,7 @@ namespace RayTracer
 			// instead transform the ray by the inverse transform allowing the sphere to be treated as a
 			// unit sphere with its origin as 0,0,0. World-Space vs Object-Space.
 			// TODO: What do the calculations look like if you're not dealing with a unit sphere at 0,0,0?
-			const Ray transformedRay = ray.Transformed(Transform.Inverted());
+			const Ray transformedRay = ray.Transformed(Transform_.Inverted());
 			const Tuple sphereToRay = transformedRay.Origin - Tuple::Point(0, 0, 0); // The RHS is the centre of the sphere, assumed to be world origin.
 			const float a = Tuple::Dot(transformedRay.Direction, transformedRay.Direction); // Surely this is always 1?
 			const float b = 2 * Tuple::Dot(transformedRay.Direction, sphereToRay);
@@ -50,7 +50,7 @@ namespace RayTracer
 			// To handle a transformed sphere, transform the world space point
 			// to object space so that the sphere can be treated as though it
 			// were a unit sphere. This gets the normal in object space.
-			Tuple objectSpacePoint = Transform.Inverted() * worldSpacePoint;
+			Tuple objectSpacePoint = Transform_.Inverted() * worldSpacePoint;
 			Tuple objectNormal = objectSpacePoint - Tuple::Point(0, 0, 0);
 
 			// To convert from object space to normal space multiply the
@@ -59,7 +59,7 @@ namespace RayTracer
 			// right, but because the normals will no longer be perpendicular to
 			// the surface it'll appear as though the image was transformed,
 			// rather than the object.
-			Tuple worldNormal = Transform.Inverted().Transposed() * objectNormal;
+			Tuple worldNormal = Transform_.Inverted().Transposed() * objectNormal;
 			worldNormal.W = 0; // Hack to fix any wonky w coordinate caused by a translation transform.
 
 			return worldNormal.Normalised();

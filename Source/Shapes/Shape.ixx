@@ -30,7 +30,7 @@ namespace RayTracer
 				Hit(ray.Position(time)),
 				EyeVector(-ray.Direction),
 				Normal(object->Normal(Hit)),
-				HitOffset(Hit + Normal * Epsilon),
+				HitOffset(Hit + Normal * Epsilon * 100),
 				Inside(false)
 			{
 				if (Tuple::Dot(Normal, EyeVector) < 0)
@@ -71,30 +71,31 @@ namespace RayTracer
 			}
 		};
 
-		static size_t GetID()
+	private:
+		static size_t GetFreeID()
 		{
 			static size_t ID = 0;
 			return ID++;
 		}
 
-		size_t ID = GetID();
+		size_t ID_ = GetFreeID();
 	public:
-		bool operator==(const Shape& rhs) const
-		{
-			return ID == rhs.ID;
-		}
+		Matrix<4> Transform_ = Matrix<4>::IdentityMatrix();
+		Material Material_; // Maybe this is why pascal case members aren't so popular in C++...
 
-		Shape() : Transform(Matrix<4>::IdentityMatrix()) {}
-		Shape(const Matrix<4>& transform) : Transform(transform) {}
-		Shape(const Matrix<4>& transform, const Material& material) : Transform(transform), MaterialInstance(material) {}
-		Shape(const Material& material) : Transform(Matrix<4>::IdentityMatrix()), MaterialInstance(material) {}
-		Shape(const Shape& object) : Transform(object.Transform), MaterialInstance(object.MaterialInstance) {}
-
-		Matrix<4> Transform;
-		Material MaterialInstance; // Maybe this is why pascal case members aren't so popular in C++...
-
-		virtual std::vector<Intersection> Intersect(const Ray& ray) = 0;
-		virtual Tuple Normal(const Tuple& worldSpacePoint) const = 0;
+		Shape() {}
+		Shape(const Matrix<4> &transform) : Transform_(transform) {}
+		Shape(const Matrix<4> &transform, const Material &material) : Transform_(transform), Material_(material) {}
+		Shape(const Material &material) : Material_(material) {}
+		Shape(const Shape &object) : Transform_(object.Transform_), Material_(object.Material_) {}
 		virtual ~Shape() = default;
+
+		virtual std::vector<Intersection> Intersect(const Ray &ray) = 0;
+		virtual Tuple Normal(const Tuple &worldSpacePoint) const = 0;
+
+		bool operator==(const Shape &rhs) const
+		{
+			return ID_ == rhs.ID_;
+		}
 	};
 }

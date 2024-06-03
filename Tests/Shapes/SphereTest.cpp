@@ -7,22 +7,22 @@ namespace RayTracer
 	TEST(SphereTest, SphereDefaultTransform)
 	{
 		Sphere sphere;
-		ASSERT_EQ(sphere.Transform, Matrix<4>::IdentityMatrix());
+		ASSERT_EQ(sphere.Transform_, Matrix<4>::IdentityMatrix());
 	}
 
 	TEST(SphereTest, SphereSetTransform)
 	{
 		Sphere sphere;
 		Matrix<4> transform = Matrix<4>::Translation(2, 3, 4);
-		sphere.Transform = transform; // TODO: Use a setter? Maybe if logic gets more complicated.
-		ASSERT_EQ(sphere.Transform, transform);
+		sphere.Transform_ = transform; // TODO: Use a setter? Maybe if logic gets more complicated.
+		ASSERT_EQ(sphere.Transform_, transform);
 	}
 
 	TEST(SphereTest, SphereScaledIntersectRay)
 	{
 		Ray ray{Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
-		sphere.Transform = Matrix<4>::Scaling(2, 2, 2);
+		sphere.Transform_ = Matrix<4>::Scaling(2, 2, 2);
 		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 
 		ASSERT_EQ(intersections.size(), 2);
@@ -34,7 +34,7 @@ namespace RayTracer
 	{
 		Ray ray{Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1)};
 		Sphere sphere;
-		sphere.Transform = Matrix<4>::Translation(5, 0, 0);
+		sphere.Transform_ = Matrix<4>::Translation(5, 0, 0);
 		std::vector<Shape::Intersection> intersections = sphere.Intersect(ray);
 
 		ASSERT_EQ(intersections.size(), 0);
@@ -187,7 +187,7 @@ namespace RayTracer
 	TEST(SphereTest, NormalTranslatedSphere)
 	{
 		Sphere sphere{};
-		sphere.Transform = Matrix<4>::Translation(0, 1, 0);
+		sphere.Transform_ = Matrix<4>::Translation(0, 1, 0);
 		Tuple normal = sphere.Normal(Tuple::Point(0, 1.70711, -0.70711));
 		ASSERT_EQ(normal, Tuple::Vector(0, 0.70711, -0.70711));
 	}
@@ -203,6 +203,6 @@ namespace RayTracer
 	{
 		Sphere sphere{};
 		Material defaultMaterial;
-		ASSERT_EQ(sphere.MaterialInstance, defaultMaterial);
+		ASSERT_EQ(sphere.Material_, defaultMaterial);
 	}
 }
