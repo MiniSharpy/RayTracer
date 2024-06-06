@@ -17,23 +17,29 @@ namespace RayTracer
 	export class Pattern
 	{
 	public:
-		// TODO: Depending on how this chapter plays out, methods might be better.
-		// Or even using a standard structure like an array to store the colours.
-		static Pattern Stripe(Tuple colourA, Tuple colourB) { return {colourA, colourB}; }
+		virtual ~Pattern() = default;
 
-		static Tuple StripeAt(Pattern pattern, Tuple point)
-		{
-			// We need to cast to an integer so that we can check if odd.
-			// But, we can't rely on integer truncating as it'll 
-			if ((static_cast<int>(std::floor(point.X)) & 1) == 0) { return pattern.ColourA; }
+		virtual Tuple ColourAt(Tuple point) = 0;
 
-			return pattern.ColourB;
-		}
+		Matrix<4> Transform;
+	};
 
+	export class Stripe : public Pattern
+	{
+	public:
 		Tuple ColourA;
 
 		Tuple ColourB;
 
-		Matrix<4> Transform;
+		Stripe(Tuple colourA, Tuple colourB) : ColourA(colourA), ColourB(colourB) {}
+
+		Tuple ColourAt(Tuple point) override
+		{
+			// We need to cast to an integer so that we can check if odd.
+			// But, we can't rely on integer truncating as it'll 
+			if ((static_cast<int>(std::floor(point.X)) & 1) == 0) { return ColourA; }
+
+			return ColourB;
+		}
 	};
 }

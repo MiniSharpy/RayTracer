@@ -6,26 +6,28 @@ import RayTracer;
 struct Projectile
 {
 	RayTracer::Tuple Position;
+
 	RayTracer::Tuple Velocity;
 };
 
 struct Environment
 {
 	RayTracer::Tuple Gravity;
+
 	RayTracer::Tuple Wind;
 };
 
-Projectile Tick(Environment &environment, Projectile &projectile)
+Projectile Tick(Environment& environment, Projectile& projectile)
 {
-	return { projectile.Position + projectile.Velocity, projectile.Velocity + environment.Gravity + environment.Wind };
+	return {projectile.Position + projectile.Velocity, projectile.Velocity + environment.Gravity + environment.Wind};
 }
 
 void DrawProjectile()
 {
 	Projectile projectile =
 	{
-		RayTracer::Tuple::Point(0,1,0),
-		RayTracer::Tuple::Vector(1,1.8,0).Normalised() * 11
+		RayTracer::Tuple::Point(0, 1, 0),
+		RayTracer::Tuple::Vector(1, 1.8, 0).Normalised() * 11
 	};
 	Environment environment = {
 		RayTracer::Tuple::Vector(0, -0.1, 0),
@@ -41,7 +43,7 @@ void DrawProjectile()
 		canvas.SetPixel(
 			std::max<int>(0, projectile.Position.X),
 			std::max<int>(0, projectile.Position.Y),
-			{ 1, 0,0 });
+			{1, 0, 0});
 		std::cout << projectile.Position << std::endl;
 	}
 
@@ -64,7 +66,7 @@ void DrawDistributedPoints()
 	{
 		// TODO: Implement Tuple::Translate()? Would chaining still work alright?
 		RayTracer::Tuple centred = translation * point;
-		canvas.SetPixel(centred.X, centred.Y, { 1, 1, 1 });
+		canvas.SetPixel(centred.X, centred.Y, {1, 1, 1});
 		point = rotation * point;
 	}
 
@@ -80,7 +82,8 @@ void DrawFilledCircled()
 
 	// World Position:  X=256, Y=256, Z=0.
 	RayTracer::Sphere sphere
-	{ RayTracer::Matrix<4>::Scaling(15, 30, 1).Translate(width / 2, height / 2, 0)
+	{
+		RayTracer::Matrix<4>::Scaling(15, 30, 1).Translate(width / 2, height / 2, 0)
 	};
 
 	// World Position: X=256, Y=256, Z=512.
@@ -98,10 +101,7 @@ void DrawFilledCircled()
 
 			std::optional<RayTracer::Shape::Intersection> hit =
 				RayTracer::Shape::Intersection::Hit(sphere.Intersect(ray));
-			if (hit)
-			{
-				canvas.SetPixel(x, y, RayTracer::Tuple::Colour(1, 0, 0));
-			}
+			if (hit) { canvas.SetPixel(x, y, RayTracer::Tuple::Colour(1, 0, 0)); }
 		}
 	}
 
@@ -124,7 +124,8 @@ void DrawSphere()
 
 	// World Position:  X=256, Y=256, Z=0.
 	RayTracer::Sphere sphere
-	{ RayTracer::Matrix<4>::Scaling(128, 128, 128).Translate(width / 2, height / 2, 0)
+	{
+		RayTracer::Matrix<4>::Scaling(128, 128, 128).Translate(width / 2, height / 2, 0)
 	};
 	sphere.Material_.Colour = RayTracer::Tuple::Colour(1, 0.2, 1);
 
@@ -146,7 +147,7 @@ void DrawSphere()
 
 			if (hit)
 			{
-				RayTracer::Sphere &hitObject = sphere;
+				RayTracer::Sphere& hitObject = sphere;
 				RayTracer::Tuple position = ray.Position(hit->Time);
 				RayTracer::Tuple normal = hitObject.Normal(position);
 				RayTracer::Tuple eye = -ray.Direction;
@@ -174,14 +175,14 @@ void DrawSpheres()
 
 	std::shared_ptr<RayTracer::Sphere> leftWall = std::make_shared<RayTracer::Sphere>();
 	leftWall->Transform_.Scale(10, 0.03, 10)
-		.RotateX(std::numbers::pi / 2).RotateY(-std::numbers::pi / 4)
-		.Translate(0, 0, 5);
+	        .RotateX(std::numbers::pi / 2).RotateY(-std::numbers::pi / 4)
+	        .Translate(0, 0, 5);
 	leftWall->Material_ = floor->Material_;
 
 	std::shared_ptr<RayTracer::Sphere> rightWall = std::make_shared<RayTracer::Sphere>();
 	rightWall->Transform_.Scale(10, 0.03, 10)
-		.RotateX(std::numbers::pi / 2).RotateY(std::numbers::pi / 4)
-		.Translate(0, 0, 5);
+	         .RotateX(std::numbers::pi / 2).RotateY(std::numbers::pi / 4)
+	         .Translate(0, 0, 5);
 	rightWall->Material_ = floor->Material_;
 
 	std::shared_ptr<RayTracer::Sphere> middle = std::make_shared<RayTracer::Sphere>();
@@ -204,7 +205,7 @@ void DrawSpheres()
 
 	RayTracer::World world
 	{
-	{ floor, leftWall, rightWall, left, middle, right },
+		{floor, leftWall, rightWall, left, middle, right},
 		RayTracer::PointLight
 		{
 			RayTracer::Tuple::Point(-10, 10, -10),
@@ -251,7 +252,7 @@ void Chapter9()
 
 	RayTracer::World world
 	{
-	{ floor, left, middle, right },
+		{floor, left, middle, right},
 		RayTracer::PointLight
 		{
 			RayTracer::Tuple::Point(-10, 10, -10),
@@ -272,13 +273,13 @@ void Chapter9()
 	canvas.WritePPM();
 }
 
-
 void Chapter10()
 {
 	std::shared_ptr<RayTracer::Plane> floor = std::make_shared<RayTracer::Plane>();
 	floor->Material_.Colour = RayTracer::Tuple::Colour(1, 0.9, 0.9);
 	floor->Material_.Specular = 0;
-	floor->Material_.Pattern_ = { RayTracer::Tuple::Colour(0, 1, 0), RayTracer::Tuple::Colour(1, 0, 0) };
+	floor->Material_.Pattern_ = std::make_shared<RayTracer::Stripe>(RayTracer::Tuple::Colour(0, 1, 0),
+	                                                                RayTracer::Tuple::Colour(1, 0, 0));
 
 	std::shared_ptr<RayTracer::Sphere> middle = std::make_shared<RayTracer::Sphere>();
 	middle->Transform_.Translate(-0.5, 1, 0.5);
@@ -300,7 +301,7 @@ void Chapter10()
 
 	RayTracer::World world
 	{
-	{ floor, left, middle, right },
+		{floor, left, middle, right},
 		RayTracer::PointLight
 		{
 			RayTracer::Tuple::Point(-10, 10, -10),
@@ -321,7 +322,7 @@ void Chapter10()
 	canvas.WritePPM();
 }
 
-int main(int, char **)
+int main(int, char**)
 {
 	Chapter10();
 	return 0;

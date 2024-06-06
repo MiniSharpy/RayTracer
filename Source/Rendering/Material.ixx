@@ -1,6 +1,7 @@
 module;
 #include <cassert>
 #include <cmath>
+#include <memory>
 #include <optional>
 export module RayTracer:Material;
 
@@ -20,7 +21,7 @@ namespace RayTracer
 		float Specular = 0.9f; // Used to determine the intensity of rays reflecting.
 		float Shininess = 200.0f;
 
-		std::optional<Pattern> Pattern_;
+		std::shared_ptr<Pattern> Pattern_;
 
 		/// <returns>The colour of the surface at the specified point.</returns>
 		Tuple Lighting(const PointLight& light, const Tuple& surfacePointViewed,

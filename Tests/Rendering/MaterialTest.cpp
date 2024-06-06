@@ -120,7 +120,7 @@ namespace RayTracer
 	TEST(MaterialTest, LightingWithPattern)
 	{
 		Material material;
-		material.Pattern_ = {Tuple::Colour(1, 1, 1), Tuple::Colour(0, 0, 0)};
+		material.Pattern_ = std::make_shared<Stripe>(Colour::White, Colour::Black);
 		material.Ambient = 1;
 		material.Diffuse = 0;
 		material.Specular = 0;
@@ -137,9 +137,9 @@ namespace RayTracer
 		Tuple point2 = Tuple::Point(1.1f, 0, 0);
 
 		Tuple colour1 = material.Lighting(light, point1, viewVector, normal, false,
-		                                  Pattern::StripeAt(*material.Pattern_, point1));
+		                                  material.Pattern_->ColourAt(point1));
 		Tuple colour2 = material.Lighting(light, point2, viewVector, normal, false,
-		                                  Pattern::StripeAt(*material.Pattern_, point2));
+		                                  material.Pattern_->ColourAt(point2));
 
 		ASSERT_EQ(colour1, Tuple::Colour(1, 1, 1));
 		ASSERT_EQ(colour2, Tuple::Colour(0, 0, 0));
