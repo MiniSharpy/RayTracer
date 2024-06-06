@@ -1,32 +1,41 @@
 module;
 #include <cassert>
-#include<cmath>
+#include <cmath>
+#include <optional>
 export module RayTracer:Material;
 
 import :PointLight;
 import :Tuple;
 import :FloatHelper;
-
+import :Pattern;
 
 namespace RayTracer
 {
 	export struct Material
 	{
 		Tuple Colour = Tuple::Colour(1, 1, 1);
+
 		float Ambient = 0.1f; // Used to emulate the effects of global illumination.
 		float Diffuse = 0.9f; // Used to determine intensity of surfaces aligned to the light source.
 		float Specular = 0.9f; // Used to determine the intensity of rays reflecting.
 		float Shininess = 200.0f;
 
+		std::optional<Pattern> Pattern_;
+
 		/// <returns>The colour of the surface at the specified point.</returns>
-		Tuple Lighting(const PointLight& light, const Tuple& surfacePointViewed, 
-			const Tuple& viewVector, const Tuple& surfaceNormal, bool inShadow = false) const
+		Tuple Lighting(const PointLight& light, const Tuple& surfacePointViewed,
+		               const Tuple& viewVector, const Tuple& surfaceNormal, bool inShadow = false,
+		               const std::optional<Tuple>& overridingColour = std::nullopt) const
 		{
 			assert(viewVector == viewVector.Normalised());
+
+			Tuple materialColour = Colour;
+			if (overridingColour) { materialColour = *overridingColour; }
+
 			Tuple diffuseColour = Tuple::Colour(0, 0, 0);
 			Tuple specularColour = Tuple::Colour(0, 0, 0);
 
-			Tuple effectiveColourOfSurface = Tuple::HadamardProduct(Colour, light.Intensity);
+			Tuple effectiveColourOfSurface = Tuple::HadamardProduct(materialColour, light.Intensity);
 			Tuple ambientColour = effectiveColourOfSurface * Ambient; // Hack to emulate global illumination.
 
 			// When there's a negative dot product the light is on the other side of the surface and diffuse

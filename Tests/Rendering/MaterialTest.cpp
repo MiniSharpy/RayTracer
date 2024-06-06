@@ -116,4 +116,32 @@ namespace RayTracer
 		// Ambient, diffuse should be at full strength, but the specular effectively 0.
 		ASSERT_EQ(result, Tuple::Colour(.1f, .1f, .1f));
 	}
+
+	TEST(MaterialTest, LightingWithPattern)
+	{
+		Material material;
+		material.Pattern_ = {Tuple::Colour(1, 1, 1), Tuple::Colour(0, 0, 0)};
+		material.Ambient = 1;
+		material.Diffuse = 0;
+		material.Specular = 0;
+
+		Tuple viewVector = Tuple::Vector(0, 0, -1);
+		Tuple normal = Tuple::Vector(0, 0, -1);
+		PointLight light
+		{
+			Tuple::Point(0, 0, -10),
+			Tuple::Colour(1, 1, 1)
+		};
+
+		Tuple point1 = Tuple::Point(0.9f, 0, 0);
+		Tuple point2 = Tuple::Point(1.1f, 0, 0);
+
+		Tuple colour1 = material.Lighting(light, point1, viewVector, normal, false,
+		                                  Pattern::StripeAt(*material.Pattern_, point1));
+		Tuple colour2 = material.Lighting(light, point2, viewVector, normal, false,
+		                                  Pattern::StripeAt(*material.Pattern_, point2));
+
+		ASSERT_EQ(colour1, Tuple::Colour(1, 1, 1));
+		ASSERT_EQ(colour2, Tuple::Colour(0, 0, 0));
+	}
 }

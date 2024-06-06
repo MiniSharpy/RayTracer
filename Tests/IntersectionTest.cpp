@@ -9,7 +9,7 @@ namespace RayTracer
 		Sphere sphere{};
 		Shape::Intersection intersection{4, &sphere};
 		Shape::Computation computation = intersection.PrepareComputations(ray);
-		ASSERT_EQ(computation.ObjectInstance, intersection.Object);
+		ASSERT_EQ(computation.Object, intersection.Object);
 		ASSERT_EQ(computation.Hit, Tuple::Point(0, 0, -1));
 		ASSERT_EQ(computation.EyeVector, Tuple::Vector(0, 0, -1));
 		ASSERT_EQ(computation.Normal, Tuple::Vector(0, 0, -1));
@@ -31,7 +31,7 @@ namespace RayTracer
 		Shape::Intersection intersection{1, &sphere};
 		Shape::Computation computation = intersection.PrepareComputations(ray);
 		ASSERT_EQ(computation.Inside, true);
-		ASSERT_EQ(computation.ObjectInstance, intersection.Object);
+		ASSERT_EQ(computation.Object, intersection.Object);
 		ASSERT_EQ(computation.Hit, Tuple::Point(0, 0, 1));
 		ASSERT_EQ(computation.EyeVector, Tuple::Vector(0, 0, -1));
 		ASSERT_EQ(computation.Normal, Tuple::Vector(0, 0, -1));

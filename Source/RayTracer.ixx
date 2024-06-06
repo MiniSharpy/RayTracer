@@ -12,3 +12,4 @@ export import :Material;
 export import :World;
 export import :Camera;
 export import :FloatHelper;
+export import :Pattern;

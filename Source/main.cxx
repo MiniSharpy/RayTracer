@@ -1,5 +1,3 @@
-// Working On: "Chapter 9: Planes. PG 119"
-
 #include<iostream>
 #include<numbers>
 #include<optional>
@@ -17,7 +15,7 @@ struct Environment
 	RayTracer::Tuple Wind;
 };
 
-Projectile Tick(Environment& environment, Projectile& projectile)
+Projectile Tick(Environment &environment, Projectile &projectile)
 {
 	return { projectile.Position + projectile.Velocity, projectile.Velocity + environment.Gravity + environment.Wind };
 }
@@ -120,7 +118,7 @@ void DrawSphere()
 
 	RayTracer::PointLight light
 	{
-		RayTracer::Tuple::Point(-width/2, -height/2, distance),
+		RayTracer::Tuple::Point(-width / 2, -height / 2, distance),
 		RayTracer::Tuple::Colour(1, 1, 1)
 	};
 
@@ -148,7 +146,7 @@ void DrawSphere()
 
 			if (hit)
 			{
-				RayTracer::Sphere& hitObject = sphere;
+				RayTracer::Sphere &hitObject = sphere;
 				RayTracer::Tuple position = ray.Position(hit->Time);
 				RayTracer::Tuple normal = hitObject.Normal(position);
 				RayTracer::Tuple eye = -ray.Direction;
@@ -274,8 +272,57 @@ void Chapter9()
 	canvas.WritePPM();
 }
 
-int main(int, char**)
+
+void Chapter10()
 {
-	Chapter9();
+	std::shared_ptr<RayTracer::Plane> floor = std::make_shared<RayTracer::Plane>();
+	floor->Material_.Colour = RayTracer::Tuple::Colour(1, 0.9, 0.9);
+	floor->Material_.Specular = 0;
+	floor->Material_.Pattern_ = { RayTracer::Tuple::Colour(0, 1, 0), RayTracer::Tuple::Colour(1, 0, 0) };
+
+	std::shared_ptr<RayTracer::Sphere> middle = std::make_shared<RayTracer::Sphere>();
+	middle->Transform_.Translate(-0.5, 1, 0.5);
+	middle->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
+	middle->Material_.Diffuse = 0.7;
+	middle->Material_.Specular = 0.3;
+
+	std::shared_ptr<RayTracer::Sphere> right = std::make_shared<RayTracer::Sphere>();
+	right->Transform_.Scale(0.5, 0.5, 0.5).Translate(1.5, 0.5, 0.1);
+	right->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
+	right->Material_.Diffuse = 0.7;
+	right->Material_.Specular = 0.3;
+
+	std::shared_ptr<RayTracer::Sphere> left = std::make_shared<RayTracer::Sphere>();
+	left->Transform_.Scale(0.33, 0.33, 0.33).Translate(-1.5, 0.33, -0.75);
+	left->Material_.Colour = RayTracer::Tuple::Colour(1, 0.8, 0.1);
+	left->Material_.Diffuse = 0.7;
+	left->Material_.Specular = 0.3;
+
+	RayTracer::World world
+	{
+	{ floor, left, middle, right },
+		RayTracer::PointLight
+		{
+			RayTracer::Tuple::Point(-10, 10, -10),
+			RayTracer::Tuple::Colour(1, 1, 1)
+		}
+	};
+
+	// TODO: Does it even make sense to have a camera not attached to a world?
+	RayTracer::Camera camera(512, 512, std::numbers::pi / 3);
+	camera.Transform = RayTracer::Matrix<4>::ViewTransform
+	(
+		RayTracer::Tuple::Point(0, 1.5, -5),
+		RayTracer::Tuple::Point(0, 1, 0),
+		RayTracer::Tuple::Vector(0, 1, 0)
+	);
+
+	RayTracer::Canvas canvas = camera.Render(world);
+	canvas.WritePPM();
+}
+
+int main(int, char **)
+{
+	Chapter10();
 	return 0;
 }

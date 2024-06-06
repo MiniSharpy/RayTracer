@@ -1,5 +1,6 @@
 module;
 #include <algorithm>
+#include <cassert>
 #include <vector>
 #include <optional>
 
@@ -17,7 +18,7 @@ namespace RayTracer
 		struct Computation
 		{
 			float Time;
-			Shape *ObjectInstance;
+			Shape *Object;
 			Tuple Hit;
 			Tuple EyeVector;
 			Tuple Normal;
@@ -26,7 +27,7 @@ namespace RayTracer
 
 			Computation(const Ray &ray, float time, Shape *object) :
 				Time(time),
-				ObjectInstance(object),
+				Object(object),
 				Hit(ray.Position(time)),
 				EyeVector(-ray.Direction),
 				Normal(object->Normal(Hit)),
@@ -92,6 +93,32 @@ namespace RayTracer
 
 		virtual std::vector<Intersection> Intersect(const Ray &ray) = 0;
 		virtual Tuple Normal(const Tuple &worldSpacePoint) const = 0;
+
+		// Needed to move this here rather than on pattern object to avoid circular dependency. But really, it makes
+		// more sense here anyway
+		Tuple StripeAt(Tuple worldSpacePoint) const
+		{
+			assert(Material_.Pattern_);
+
+			Tuple objectSpacePoint = Transform_.Inverted() * worldSpacePoint;
+			Tuple patternSpacePoint = Material_.Pattern_->Transform.Inverted() * objectSpacePoint;
+
+			return Pattern::StripeAt(*Material_.Pattern_, patternSpacePoint);
+		}
+
+		Tuple Lighting(const PointLight &light, const Tuple &surfacePointViewed,
+			const Tuple &viewVector, const Tuple &surfaceNormal, bool inShadow = false) const
+		{
+			assert(viewVector == viewVector.Normalised());
+
+			if (Material_.Pattern_)
+			{
+				return Material_.Lighting(light, surfacePointViewed, viewVector, surfaceNormal, inShadow, 
+					StripeAt(surfacePointViewed));
+			}
+
+			return Material_.Lighting(light, surfacePointViewed, viewVector, surfaceNormal, inShadow);
+		}
 
 		bool operator==(const Shape &rhs) const
 		{
