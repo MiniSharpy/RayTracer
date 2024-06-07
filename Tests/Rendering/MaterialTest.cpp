@@ -120,7 +120,7 @@ namespace RayTracer
 	TEST(MaterialTest, LightingWithPattern)
 	{
 		Material material;
-		material.Pattern_ = std::make_shared<Stripe>(Colour::White, Colour::Black);
+		material.Pattern_ = std::make_shared<StripePattern>(Colour::White, Colour::Black);
 		material.Ambient = 1;
 		material.Diffuse = 0;
 		material.Specular = 0;

@@ -278,26 +278,35 @@ void Chapter10()
 	std::shared_ptr<RayTracer::Plane> floor = std::make_shared<RayTracer::Plane>();
 	floor->Material_.Colour = RayTracer::Tuple::Colour(1, 0.9, 0.9);
 	floor->Material_.Specular = 0;
-	floor->Material_.Pattern_ = std::make_shared<RayTracer::Stripe>(RayTracer::Tuple::Colour(0, 1, 0),
-	                                                                RayTracer::Tuple::Colour(1, 0, 0));
+	floor->Material_.Pattern_ = std::make_shared<RayTracer::GradientPattern>(RayTracer::Colour::Red,
+	                                                                         RayTracer::Colour::Green);
+	floor->Material_.Pattern_->Transform.Scale(10, 10, 10).Translate(5, 0, 0);
 
 	std::shared_ptr<RayTracer::Sphere> middle = std::make_shared<RayTracer::Sphere>();
 	middle->Transform_.Translate(-0.5, 1, 0.5);
 	middle->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
 	middle->Material_.Diffuse = 0.7;
 	middle->Material_.Specular = 0.3;
+	middle->Material_.Pattern_ = std::make_shared<RayTracer::StripePattern>(RayTracer::Colour::White,
+	                                                                        RayTracer::Colour::Black);
+	middle->Material_.Pattern_->Transform.Scale(0.25, 0.25, 0.25);
 
 	std::shared_ptr<RayTracer::Sphere> right = std::make_shared<RayTracer::Sphere>();
 	right->Transform_.Scale(0.5, 0.5, 0.5).Translate(1.5, 0.5, 0.1);
 	right->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
 	right->Material_.Diffuse = 0.7;
 	right->Material_.Specular = 0.3;
+	right->Material_.Pattern_ = std::make_shared<RayTracer::RingPattern>(RayTracer::Colour::Red,
+	                                                                     RayTracer::Tuple::Colour(1, 0.75, 0.75));
+	right->Material_.Pattern_->Transform.Scale(0.25, 0.25, 0.25).RotateX(std::numbers::pi / 2);
 
 	std::shared_ptr<RayTracer::Sphere> left = std::make_shared<RayTracer::Sphere>();
 	left->Transform_.Scale(0.33, 0.33, 0.33).Translate(-1.5, 0.33, -0.75);
 	left->Material_.Colour = RayTracer::Tuple::Colour(1, 0.8, 0.1);
 	left->Material_.Diffuse = 0.7;
 	left->Material_.Specular = 0.3;
+	left->Material_.Pattern_ = std::make_shared<RayTracer::CheckerPattern>(RayTracer::Colour::Blue,
+	                                                                       RayTracer::Tuple::Colour(0.75, 0.75, 1));
 
 	RayTracer::World world
 	{
@@ -310,7 +319,7 @@ void Chapter10()
 	};
 
 	// TODO: Does it even make sense to have a camera not attached to a world?
-	RayTracer::Camera camera(512, 512, std::numbers::pi / 3);
+	RayTracer::Camera camera(128, 128, std::numbers::pi / 3);
 	camera.Transform = RayTracer::Matrix<4>::ViewTransform
 	(
 		RayTracer::Tuple::Point(0, 1.5, -5),
