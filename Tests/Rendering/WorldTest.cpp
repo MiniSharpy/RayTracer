@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include <numbers>
 
 import RayTracer;
 
@@ -126,5 +127,86 @@ namespace RayTracer
 
 		Tuple colour = world.ShadeIntersection(computation);
 		ASSERT_EQ(colour, Tuple::Colour(0.1f, 0.1f, 0.1f));
+	}
+
+	TEST(WorldTest, NonReflectiveMaterial)
+	{
+		World world = World::ExampleWorld();
+
+		Ray ray{Tuple::Point(0, 0, 0), Tuple::Vector(0, 0, 1)};
+
+		Shape& shape = *world.Objects[1].get();
+		shape.Material_.Ambient = 1;
+
+		Shape::Intersection intersection{1, &shape};
+
+		Shape::Computation computation = intersection.PrepareComputations(ray);
+
+		Tuple colour = world.ReflectedColour(computation);
+
+		ASSERT_EQ(colour, Tuple::Colour(0, 0, 0));
+	}
+
+	TEST(WorldTest, ReflectiveMaterial)
+	{
+		World world = World::ExampleWorld();
+		world.Objects.emplace_back(std::make_shared<Plane>());
+
+		Shape* plane = world.Objects[2].get();
+		plane->Material_.Reflectiveness = 0.5f;
+		plane->Transform_.Translate(0, -1, 0);
+
+		Ray ray{Tuple::Point(0, 0, -3), Tuple::Vector(0, -std::sqrtf(2) / 2, std::sqrtf(2) / 2)};
+
+		Shape::Intersection intersection = Shape::Intersection(std::sqrtf(2), plane);
+
+		Shape::Computation computation = intersection.PrepareComputations(ray);
+
+		Tuple colour = world.ReflectedColour(computation);
+
+		ASSERT_EQ(colour, Tuple::Colour(0.190503, 0.238129, 0.142877));
+	}
+
+	TEST(WorldTest, ReflectiveMaterialShade)
+	{
+		World world = World::ExampleWorld();
+		world.Objects.emplace_back(std::make_shared<Plane>());
+
+		Shape* plane = world.Objects[2].get();
+		plane->Material_.Reflectiveness = 0.5f;
+		plane->Transform_.Translate(0, -1, 0);
+
+		Ray ray{Tuple::Point(0, 0, -3), Tuple::Vector(0, -std::sqrtf(2) / 2, std::sqrtf(2) / 2)};
+
+		Shape::Intersection intersection = Shape::Intersection(std::sqrtf(2), plane);
+
+		Shape::Computation computation = intersection.PrepareComputations(ray);
+
+		Tuple colour = world.ShadeIntersection(computation);
+
+		ASSERT_EQ(colour, Tuple::Colour(0.876929, 0.924554, 0.829303));
+	}
+
+	TEST(WorldTest, ReflectionRecursion)
+	{
+		World world;
+		world.Light = PointLight{Tuple::Point(0, 0, 0), Colour::White};
+		world.Objects.emplace_back(std::make_shared<Plane>());
+		world.Objects.emplace_back(std::make_shared<Plane>());
+
+		Shape& lower = *world.Objects[0].get();
+		lower.Material_.Reflectiveness = 1;
+		lower.Transform_.Translate(0, -1, 0);
+
+		// Why do I need to rotate this?
+		Shape& upper = *world.Objects[1].get();
+		upper.Material_.Reflectiveness = 1;
+		upper.Transform_.RotateX(-std::numbers::pi).Translate(0, 1, 0);
+
+		Ray ray{Tuple::Point(0, 0, 0), Tuple::Vector(0, 1, 0)};
+
+		// This should overflow the stack if recursion isn't handled.
+		Tuple colour = world.ColourAt(ray);
+		SUCCEED();
 	}
 }

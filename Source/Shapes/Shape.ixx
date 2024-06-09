@@ -29,6 +29,8 @@ namespace RayTracer
 
 			Tuple HitOffset;
 
+			Tuple Reflection;
+
 			bool Inside;
 
 			Computation(const Ray& ray, float time, Shape* object) :
@@ -38,6 +40,7 @@ namespace RayTracer
 				EyeVector(-ray.Direction),
 				Normal(object->Normal(Hit)),
 				HitOffset(Hit + Normal * Epsilon * 100),
+				//Reflection(ray.Direction.Reflect(Normal)),
 				Inside(false)
 			{
 				if (Tuple::Dot(Normal, EyeVector) < 0)
@@ -45,6 +48,7 @@ namespace RayTracer
 					Inside = true;
 					Normal = -Normal;
 				}
+				Reflection = ray.Direction.Reflect(Normal);
 			}
 		};
 
@@ -102,10 +106,42 @@ namespace RayTracer
 
 		virtual ~Shape() = default;
 
-		virtual std::vector<Intersection> Intersect(const Ray& ray) = 0;
+		virtual std::vector<Intersection> Intersect(const Ray& ray)
+		{
+			// Rather than contend with transforming objects, making calculations difficult,
+			// instead transform the ray by the inverse transform allowing the object to be treated as a
+			// unit object with its origin as 0,0,0. World-Space vs Object-Space.
+			const Ray transformedRay = ray.Transformed(Transform_.Inverted());
 
-		virtual Tuple Normal(const Tuple& worldSpacePoint) const = 0;
+			return IntersectLocal(transformedRay);
+		}
 
+		virtual Tuple Normal(const Tuple& worldSpacePoint) const
+		{
+			// To handle a transformed sphere, transform the world space point
+			// to object space so that the sphere can be treated as though it
+			// were a unit sphere. This gets the normal in object space.
+			Tuple objectSpacePoint = Transform_.Inverted() * worldSpacePoint;
+			Tuple localNormal = NormalLocal(objectSpacePoint);
+
+			// To convert from object space to normal space multiply the
+			// object normal by the inverse transpose transform.
+			// Multiplying just by the transform matrix would get something almost
+			// right, but because the normals will no longer be perpendicular to
+			// the surface it'll appear as though the image was transformed,
+			// rather than the object.
+			Tuple worldNormal = Transform_.Inverted().Transposed() * localNormal;
+			worldNormal.W = 0; // Hack to fix any wonky w coordinate caused by a translation transform.
+
+			return worldNormal.Normalised();
+		}
+
+	protected:
+		virtual std::vector<Intersection> IntersectLocal(const Ray& ray) = 0;
+
+		virtual Tuple NormalLocal(const Tuple& objectSpacePoint) const = 0;
+
+	public:
 		// Needed to move this here rather than on pattern object to avoid circular dependency. But really, it makes
 		// more sense here anyway
 		Tuple StripeAt(Tuple worldSpacePoint) const

@@ -1,8 +1,8 @@
 module;
 #include <array>
 #include <cassert>
-#include <limits>
 #include <iostream>
+#include <limits>
 
 export module RayTracer:Matrix;
 
@@ -25,7 +25,7 @@ namespace RayTracer
 	// Folowing the book, rotation, scaling, and translation in that order. TODO: But this seems to differ
 	// at different point... Find out why.
 	// https://gamedev.stackexchange.com/a/16721
-	export template<size_t Dimensions>
+	export template <size_t Dimensions>
 	struct Matrix
 	{
 		/// <summary>
@@ -35,10 +35,7 @@ namespace RayTracer
 		constexpr static Matrix IdentityMatrix()
 		{
 			Matrix identityMatrix{};
-			for (int i = 0; i < Dimensions; ++i)
-			{
-				identityMatrix[(Dimensions + 1) * i] = 1;
-			}
+			for (int i = 0; i < Dimensions; ++i) { identityMatrix[(Dimensions + 1) * i] = 1; }
 
 			return identityMatrix;
 		}
@@ -101,7 +98,8 @@ namespace RayTracer
 			return rotate;
 		}
 
-		constexpr static Matrix Shearing(float xy, float xz, float yx, float yz, float zx, float zy) requires (Dimensions == 4)
+		constexpr static Matrix Shearing(float xy, float xz, float yx, float yz, float zx, float zy) requires (
+			Dimensions == 4)
 		{
 			Matrix shear = IdentityMatrix();
 			shear(0, 1) = xy;
@@ -117,7 +115,8 @@ namespace RayTracer
 		/// <summary>
 		/// Returns a transform oriented to look at a specified point with a given vector as the up direction.
 		/// </summary>
-		constexpr static Matrix ViewTransform(const Tuple& from, const Tuple& to, const Tuple& up)  requires (Dimensions == 4)
+		constexpr static Matrix ViewTransform(const Tuple& from, const Tuple& to, const Tuple& up) requires (Dimensions
+			== 4)
 		{
 			// Compute forward vector
 			Tuple forward = (to - from).Normalised();
@@ -142,7 +141,7 @@ namespace RayTracer
 			return orientation * Translation(-from.X, -from.Y, -from.Z);
 		}
 
-		std::array<float, Dimensions* Dimensions> Values;
+		std::array<float, Dimensions * Dimensions> Values;
 
 		/// <summary>
 		///	For every row in left hand side matrix:
@@ -153,7 +152,7 @@ namespace RayTracer
 		/// Each element of the final matrix is a dot product of a row-column
 		/// combination.
 		/// </summary>
-		constexpr Matrix operator* (const Matrix& rhs) const
+		constexpr Matrix operator*(const Matrix& rhs) const
 		{
 			Matrix result{};
 
@@ -161,10 +160,7 @@ namespace RayTracer
 			{
 				for (int column = 0; column < Dimensions; ++column)
 				{
-					for (int i = 0; i < Dimensions; ++i)
-					{
-						result(row, column) += (*this)(row, i) * rhs(i, column);
-					}
+					for (int i = 0; i < Dimensions; ++i) { result(row, column) += (*this)(row, i) * rhs(i, column); }
 				}
 			}
 
@@ -176,15 +172,12 @@ namespace RayTracer
 		///	the translation values of the matrix are ignored. This is because a vector is
 		///	a direction, moving it in space does not change the direction it points.
 		/// </summary>
-		constexpr Tuple operator* (const Tuple& rhs) const requires(Dimensions == 4)
+		constexpr Tuple operator*(const Tuple& rhs) const requires(Dimensions == 4)
 		{
 			Tuple result{};
 			for (int row = 0; row < 4; ++row)
 			{
-				for (int i = 0; i < 4; ++i)
-				{
-					result[row] += (*this)(row, i) * rhs[i];
-				}
+				for (int i = 0; i < 4; ++i) { result[row] += (*this)(row, i) * rhs[i]; }
 			}
 
 			return result;
@@ -193,13 +186,11 @@ namespace RayTracer
 		bool operator==(const Matrix& rhs) const
 		{
 			bool isAlmostEqual = true;
-			for (int i = 0; i < Dimensions * Dimensions; ++i)
-			{
-				isAlmostEqual &= AlmostEquals((*this)[i], rhs[i]);
-			}
+			for (int i = 0; i < Dimensions * Dimensions; ++i) { isAlmostEqual &= AlmostEquals((*this)[i], rhs[i]); }
 
 			return isAlmostEqual;
 		}
+
 		bool operator!=(const Matrix& rhs) const { return !(*this == rhs); }
 
 		// TODO: Not supported by MSVC yet.
@@ -210,42 +201,27 @@ namespace RayTracer
 		//	return Values[Dimensions * column + row];
 		//}
 
-		float& operator() (size_t row, size_t column)
-		{
-			return Values[Dimensions * row + column];
-		}
+		float& operator()(size_t row, size_t column) { return Values[Dimensions * row + column]; }
 
-		const float& operator() (size_t row, size_t column) const
-		{
-			return Values[Dimensions * row + column];
-		}
+		const float& operator()(size_t row, size_t column) const { return Values[Dimensions * row + column]; }
 
-		float& operator[](std::size_t index)
-		{
-			return Values[index];
-		}
+		float& operator[](std::size_t index) { return Values[index]; }
 
-		const float& operator[](std::size_t index) const
-		{
-			return Values[index];
-		}
+		const float& operator[](std::size_t index) const { return Values[index]; }
 
 		Matrix Transposed()
 		{
 			Matrix transposed;
 			for (int row = 0; row < Dimensions; ++row)
 			{
-				for (int column = 0; column < Dimensions; ++column)
-				{
-					transposed(row, column) = (*this)(column, row);
-				}
+				for (int column = 0; column < Dimensions; ++column) { transposed(row, column) = (*this)(column, row); }
 			}
 
 			return transposed;
 		}
 
 		// TODO: Specialise. Currently with MSVC a specialised version isn't called so this workaround is used.
-		float Determinant() const  requires(Dimensions == 2)
+		float Determinant() const requires(Dimensions == 2)
 		{
 			return (Values[0] * Values[3]) - (Values[1] * Values[2]);
 		}
@@ -254,10 +230,7 @@ namespace RayTracer
 		{
 			// Doesn't matter which row or column is picked.
 			float determinant = 0;
-			for (int column = 0; column < Dimensions; ++column)
-			{
-				determinant += Values[column] * Cofactor(0, column);
-			}
+			for (int column = 0; column < Dimensions; ++column) { determinant += Values[column] * Cofactor(0, column); }
 
 			return determinant;
 		}
@@ -273,10 +246,10 @@ namespace RayTracer
 					size_t rowOffset = row >= rowToRemove ? 1 : 0;
 					size_t columnOffset = column >= columnToRemove ? 1 : 0;
 					submatrix(row, column) = (*this)
-						(
-							row + rowOffset,
-							column + columnOffset
-							);
+					(
+						row + rowOffset,
+						column + columnOffset
+					);
 				}
 			}
 
@@ -297,6 +270,7 @@ namespace RayTracer
 
 		Matrix Inverted() const
 		{
+			//assert(Determinant() != 0); // Can't divide by zero.
 			float determinant = Determinant();
 
 			Matrix inverted;
@@ -313,7 +287,6 @@ namespace RayTracer
 			return inverted;
 		}
 
-		// TODO: Simplify the API. Once I've use the struct more it become obvious that some of these aren't needed.
 		Matrix& Translate(float x, float y, float z) requires (Dimensions == 4)
 		{
 			*this = Translation(x, y, z) * (*this);
@@ -355,25 +328,13 @@ namespace RayTracer
 			return Translation(x, y, z) * (*this);
 		}
 
-		Matrix Scaled(float x, float y, float z) requires (Dimensions == 4)
-		{
-			return Scaling(x, y, z) * (*this);
-		}
+		Matrix Scaled(float x, float y, float z) requires (Dimensions == 4) { return Scaling(x, y, z) * (*this); }
 
-		Matrix RotatedX(float radians) requires (Dimensions == 4)
-		{
-			return RotationX(radians) * (*this);
-		}
+		Matrix RotatedX(float radians) requires (Dimensions == 4) { return RotationX(radians) * (*this); }
 
-		Matrix RotatedY(float radians) requires (Dimensions == 4)
-		{
-			return RotationY(radians) * (*this);
-		}
+		Matrix RotatedY(float radians) requires (Dimensions == 4) { return RotationY(radians) * (*this); }
 
-		Matrix RotatedZ(float radians) requires (Dimensions == 4)
-		{
-			return RotationZ(radians) * (*this);
-		}
+		Matrix RotatedZ(float radians) requires (Dimensions == 4) { return RotationZ(radians) * (*this); }
 
 		Matrix Sheared(float xy, float xz, float yx, float yz, float zx, float zy) requires (Dimensions == 4)
 		{

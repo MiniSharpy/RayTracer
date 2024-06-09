@@ -57,16 +57,22 @@ namespace RayTracer
 
 			// To support multiple lights iterate over all sources and add together resulting values.
 			// But how does that handle values > 1? Do they just get clipped at some point?
-			return computation.Object->Lighting(*Light, computation.Hit, computation.EyeVector, computation.Normal,
-			                                    isShadowed);
+			Tuple surface = computation.Object->Lighting(*Light, computation.Hit, computation.EyeVector,
+			                                             computation.Normal,
+			                                             isShadowed);
+
+			Tuple reflected = ReflectedColour(computation);
+
+			// Blend together the surface and reflection.
+			return surface + reflected;
 		}
 
-		Tuple ColourAt(Ray& ray) const
+		Tuple ColourAt(const Ray& ray) const
 		{
 			std::vector<Shape::Intersection> intersections = Intersect(ray);
 			std::optional<Shape::Intersection> intersection = Shape::Intersection::Hit(intersections);
 
-			if (!intersection) { return {}; }
+			if (!intersection) { return Colour::Black; }
 
 			return ShadeIntersection(intersection->PrepareComputations(ray));
 		}
@@ -74,17 +80,29 @@ namespace RayTracer
 		bool IsPointInShadow(Tuple point) const
 		{
 			Tuple lightDirectionNonNormalised = Light->Position - point;
-			float lightDistance = (lightDirectionNonNormalised).Magnitude();
+			float lightDistance = lightDirectionNonNormalised.Magnitude();
 			Tuple lightDirection = lightDirectionNonNormalised.Normalised();
 
 			Ray ray{point, lightDirection};
 
 			std::vector<Shape::Intersection> intersections = Intersect(ray);
-			std::optional<Shape::Intersection> hit = Shape::Intersection::Hit(intersections);
 
+			std::optional<Shape::Intersection> hit = Shape::Intersection::Hit(intersections);
 			if (hit && hit->Time < lightDistance) { return true; }
 
 			return false;
+		}
+
+		Tuple ReflectedColour(const Shape::Computation& computation) const
+		{
+			// Return early if material isn't reflective to save on computation.
+			float materialReflectiveness = computation.Object->Material_.Reflectiveness;
+			if (materialReflectiveness == 0) { return Colour::Black; }
+
+			Ray reflectionRay{computation.HitOffset, computation.Reflection};
+			Tuple colour = ColourAt(reflectionRay);
+
+			return colour * materialReflectiveness;
 		}
 	};
 }

@@ -37,7 +37,6 @@ namespace RayTracer
 		ASSERT_EQ(computation.Normal, Tuple::Vector(0, 0, -1));
 	}
 
-	// TODO: Fix
 	TEST(IntersectionTest, SelfShadow)
 	{
 		Ray ray{Tuple::Point(0, 0, -5), Tuple::Vector(0, 0, 1)};
@@ -52,5 +51,14 @@ namespace RayTracer
 		float expected = -Epsilon / 2.f;
 		ASSERT_LT(computation.HitOffset.Z, expected);
 		ASSERT_GT(computation.Hit.Z, computation.HitOffset.Z);
+	}
+
+	TEST(IntersectionTest, PrecomputeReflectionVector)
+	{
+		Plane plane;
+		Ray ray{Tuple::Point(0, 1, -1), Tuple::Vector(0, -std::sqrtf(2) / 2.f, std::sqrtf(2) / 2)};
+		Shape::Intersection intersection{std::sqrtf(2), &plane};
+		Shape::Computation computation = intersection.PrepareComputations(ray);
+		ASSERT_EQ(computation.Reflection, Tuple::Vector(0, std::sqrtf(2) / 2, std::sqrtf(2) / 2));
 	}
 }

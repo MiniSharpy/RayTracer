@@ -282,6 +282,11 @@ void Chapter10()
 	                                                                         RayTracer::Colour::Green);
 	floor->Material_.Pattern_->Transform.Scale(10, 10, 10).Translate(5, 0, 0);
 
+	std::shared_ptr<RayTracer::Plane> backWall = std::make_shared<RayTracer::Plane>();
+	//std::shared_ptr<RayTracer::Sphere> backWall = std::make_shared<RayTracer::Sphere>();
+	backWall->Transform_.RotateX(-std::numbers::pi / 2).Translate(0, 0, 3);
+	backWall->Material_.Colour = RayTracer::Tuple::Colour(1, 0.9, 0.9);
+
 	std::shared_ptr<RayTracer::Sphere> middle = std::make_shared<RayTracer::Sphere>();
 	middle->Transform_.Translate(-0.5, 1, 0.5);
 	middle->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
@@ -292,7 +297,7 @@ void Chapter10()
 	middle->Material_.Pattern_->Transform.Scale(0.25, 0.25, 0.25);
 
 	std::shared_ptr<RayTracer::Sphere> right = std::make_shared<RayTracer::Sphere>();
-	right->Transform_.Scale(0.5, 0.5, 0.5).Translate(1.5, 0.5, 0.1);
+	right->Transform_.Scale(0.5, 0.5, 0.5).Translate(1, 1, 1);
 	right->Material_.Colour = RayTracer::Tuple::Colour(0.5, 1, 0.1);
 	right->Material_.Diffuse = 0.7;
 	right->Material_.Specular = 0.3;
@@ -310,7 +315,7 @@ void Chapter10()
 
 	RayTracer::World world
 	{
-		{floor, left, middle, right},
+		{floor, backWall, left, middle, right},
 		RayTracer::PointLight
 		{
 			RayTracer::Tuple::Point(-10, 10, -10),
@@ -331,8 +336,38 @@ void Chapter10()
 	canvas.WritePPM();
 }
 
+void ExampleWorld()
+{
+	RayTracer::World world;
+	world.Light = RayTracer::PointLight{RayTracer::Tuple::Point(0, 0, 0), RayTracer::Colour::White};
+	world.Objects.emplace_back(std::make_shared<RayTracer::Plane>());
+	world.Objects.emplace_back(std::make_shared<RayTracer::Plane>());
+
+	RayTracer::Shape& lower = *world.Objects[0].get();
+	lower.Material_.Reflectiveness = 0;
+	lower.Transform_.Translate(0, -1, 0);
+
+	RayTracer::Shape& upper = *world.Objects[1].get();
+	upper.Material_.Reflectiveness = 0;
+	upper.Transform_.RotateX(-std::numbers::pi).Translate(0, 1, 0);
+
+	RayTracer::Camera camera(128, 128,
+	                         std::numbers::pi / 3,
+	                         RayTracer::Matrix<4>::ViewTransform
+	                         (
+		                         RayTracer::Tuple::Point(0, 0, -5),
+		                         RayTracer::Tuple::Point(0, 0, 1),
+		                         RayTracer::Tuple::Vector(0, 1, 0)
+	                         )
+	);
+
+	RayTracer::Canvas canvas = camera.Render(world);
+	canvas.WritePPM();
+}
+
 int main(int, char**)
 {
-	Chapter10();
+	// Z: Forward, Y: Up, X: Right
+	ExampleWorld();
 	return 0;
 }

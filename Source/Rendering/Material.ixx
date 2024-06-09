@@ -17,9 +17,14 @@ namespace RayTracer
 		Tuple Colour = Tuple::Colour(1, 1, 1);
 
 		float Ambient = 0.1f; // Used to emulate the effects of global illumination.
+
 		float Diffuse = 0.9f; // Used to determine intensity of surfaces aligned to the light source.
+
 		float Specular = 0.9f; // Used to determine the intensity of rays reflecting.
+
 		float Shininess = 200.0f;
+
+		float Reflectiveness = 0.0f;
 
 		std::shared_ptr<Pattern> Pattern_;
 

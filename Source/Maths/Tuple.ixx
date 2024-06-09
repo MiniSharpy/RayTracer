@@ -20,12 +20,18 @@ namespace RayTracer
 	{
 		/*STATIC*/
 		// METHODS
-		static constexpr Tuple Point(float x, float y, float z) { return { x, y, z, 1.0f }; }
-		static constexpr Tuple Vector(float x, float y, float z) { return { x, y, z, 0.0f }; }
-		static constexpr Tuple Colour(float red, float green, float blue) { return { red, green, blue }; } // UB on W, but it's not exactly needed? Also, don't want to limit to 0-1 as they may need to undergo transformation before the final value.
+		static constexpr Tuple Point(float x, float y, float z) { return {x, y, z, 1.0f}; }
+
+		static constexpr Tuple Vector(float x, float y, float z) { return {x, y, z, 0.0f}; }
+
+		static constexpr Tuple Colour(float red, float green, float blue) { return {red, green, blue, 0}; }
+
 		static constexpr Tuple ZeroVector() { return Vector(0, 0, 0); }
+
 		static constexpr Tuple UnitXVector() { return Vector(1, 0, 0); }
+
 		static constexpr Tuple UnitYVector() { return Vector(0, 1, 0); }
+
 		static constexpr Tuple UnitZVector() { return Vector(0, 1, 0); }
 
 		/// <summary>
@@ -78,7 +84,7 @@ namespace RayTracer
 		///	Add a vector (W=0) and a vector (W=0), and you get another vector (W=0). Essentially accumulating growth.
 		///	Add a point (W=1) and a point (W=1), and you get nonsense (W=2).
 		/// </summary>
-		constexpr Tuple operator+ (const Tuple& rhs) const { return { X + rhs.X, Y + rhs.Y, Z + rhs.Z, W + rhs.W }; }
+		constexpr Tuple operator+(const Tuple& rhs) const { return {X + rhs.X, Y + rhs.Y, Z + rhs.Z, W + rhs.W}; }
 
 		/// <summary>
 		/// Subtract a point (W=1) from another point (W=1), and you get a vector (W=0). Essentially getting a direction and magnitude from one point to the other.
@@ -86,12 +92,13 @@ namespace RayTracer
 		///	Subtract a vector (W=0) from a vector (W=0), and you get a vector(W=0). Essentially getting the change in direction between two vectors.
 		///	Subtract a point (W=1) from a vector (W=0), and you get nonsense (W=-1).
 		/// </summary>
-		constexpr Tuple operator- (const Tuple& rhs) const { return { X - rhs.X, Y - rhs.Y, Z - rhs.Z, W - rhs.W }; }
+		constexpr Tuple operator-(const Tuple& rhs) const { return {X - rhs.X, Y - rhs.Y, Z - rhs.Z, W - rhs.W}; }
 
-		constexpr Tuple operator-() const { return { -X, -Y, -Z, -W }; };
+		constexpr Tuple operator-() const { return {-X, -Y, -Z, -W}; };
 
-		constexpr Tuple operator* (const float right) const { return { X * right, Y * right, Z * right, W * right }; };
-		constexpr Tuple operator/ (const float right) const { return { X / right, Y / right, Z / right, W / right }; };
+		constexpr Tuple operator*(const float right) const { return {X * right, Y * right, Z * right, W * right}; };
+
+		constexpr Tuple operator/(const float right) const { return {X / right, Y / right, Z / right, W / right}; };
 
 		bool operator==(const Tuple& rhs) const
 		{
@@ -101,6 +108,7 @@ namespace RayTracer
 				AlmostEquals(Z, rhs.Z) &&
 				AlmostEquals(W, rhs.W);
 		}
+
 		bool operator!=(const Tuple& rhs) const { return !(*this == rhs); }
 
 		float& operator[](std::size_t index)
@@ -123,25 +131,13 @@ namespace RayTracer
 			return Vector(X * scale, Y * scale, Z * scale);
 		}
 
-		float Magnitude() const
-		{
-			return sqrt(MagnitudeSquared());
-		}
+		float Magnitude() const { return sqrt(MagnitudeSquared()); }
 
-		float MagnitudeSquared() const
-		{
-			return X * X + Y * Y + Z * Z;
-		}
+		float MagnitudeSquared() const { return X * X + Y * Y + Z * Z; }
 
-		bool IsAPoint() const
-		{
-			return W == 1.0f;
-		}
+		bool IsAPoint() const { return W == 1.0f; }
 
-		bool IsAVector() const
-		{
-			return W == 0.0f;
-		}
+		bool IsAVector() const { return W == 0.0f; }
 
 		Tuple Reflect(Tuple normal) const
 		{

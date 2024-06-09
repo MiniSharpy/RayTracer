@@ -1,5 +1,6 @@
 import RayTracer;
 #include "gtest/gtest.h"
+#include <numbers>
 
 namespace RayTracer
 {

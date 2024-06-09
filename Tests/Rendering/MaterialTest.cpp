@@ -11,6 +11,7 @@ namespace RayTracer
 		ASSERT_FLOAT_EQ(material.Diffuse, 0.9f);
 		ASSERT_FLOAT_EQ(material.Specular, 0.9f);
 		ASSERT_FLOAT_EQ(material.Shininess, 200.0f);
+		ASSERT_FLOAT_EQ(material.Reflectiveness, 0.0f);
 	}
 
 	TEST(MaterialTest, ViewerAt0Degrees)
