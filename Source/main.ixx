@@ -283,7 +283,6 @@ void Chapter10()
 	floor->Material_.Pattern_->Transform.Scale(10, 10, 10).Translate(5, 0, 0);
 
 	std::shared_ptr<RayTracer::Plane> backWall = std::make_shared<RayTracer::Plane>();
-	//std::shared_ptr<RayTracer::Sphere> backWall = std::make_shared<RayTracer::Sphere>();
 	backWall->Transform_.RotateX(-std::numbers::pi / 2).Translate(0, 0, 3);
 	backWall->Material_.Colour = RayTracer::Tuple::Colour(1, 0.9, 0.9);
 
@@ -340,16 +339,16 @@ void ExampleWorld()
 {
 	RayTracer::World world;
 	world.Light = RayTracer::PointLight{RayTracer::Tuple::Point(0, 0, 0), RayTracer::Colour::White};
-	world.Objects.emplace_back(std::make_shared<RayTracer::Plane>());
-	world.Objects.emplace_back(std::make_shared<RayTracer::Plane>());
-
-	RayTracer::Shape& lower = *world.Objects[0].get();
-	lower.Material_.Reflectiveness = 0;
+	RayTracer::Shape& lower = *world.Objects.emplace_back(std::make_shared<RayTracer::Plane>());
+	lower.Material_.Reflectiveness = 1;
 	lower.Transform_.Translate(0, -1, 0);
 
-	RayTracer::Shape& upper = *world.Objects[1].get();
-	upper.Material_.Reflectiveness = 0;
+	RayTracer::Shape& upper = *world.Objects.emplace_back(std::make_shared<RayTracer::Plane>());
+	upper.Material_.Reflectiveness = 1;
 	upper.Transform_.RotateX(-std::numbers::pi).Translate(0, 1, 0);
+
+	RayTracer::Shape& sphere = *world.Objects.emplace_back(std::make_shared<RayTracer::Sphere>());
+	sphere.Transform_.Scale(0.5, 0.5, 0.5).Translate(0, 0, 1);
 
 	RayTracer::Camera camera(128, 128,
 	                         std::numbers::pi / 3,

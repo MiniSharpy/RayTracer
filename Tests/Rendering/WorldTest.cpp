@@ -209,4 +209,19 @@ namespace RayTracer
 		Tuple colour = world.ColourAt(ray);
 		SUCCEED();
 	}
+
+	TEST(WorldTest, ReflectionMaximumDepth)
+	{
+		World world = World::ExampleWorld();
+		std::shared_ptr<Shape>& plane = world.Objects.emplace_back(std::make_shared<Plane>());
+		plane->Material_.Reflectiveness = 0.5;
+		plane->Transform_.Translate(0, -1, 0);
+
+		Ray ray{Tuple::Point(0, 0, -3), Tuple::Vector(0, -std::sqrtf(2) / 2.f, std::sqrtf(2) / 2.f)};
+		Shape::Intersection intersection{std::sqrtf(2), plane.get()};
+
+		Shape::Computation computation = intersection.PrepareComputations(ray);
+		Tuple colour = world.ReflectedColour(computation, 0);
+		ASSERT_EQ(colour, Tuple::Colour(0, 0, 0));
+	}
 }

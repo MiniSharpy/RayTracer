@@ -29,6 +29,8 @@ namespace RayTracer
 			return {{sphere1, sphere2}, light};
 		}
 
+		static constexpr int MaxRecursionDepth = 4;
+
 		std::vector<std::shared_ptr<Shape>> Objects;
 
 		std::optional<PointLight> Light;
@@ -51,7 +53,7 @@ namespace RayTracer
 			return intersections;
 		}
 
-		Tuple ShadeIntersection(const Shape::Computation& computation) const
+		Tuple ShadeIntersection(const Shape::Computation& computation, int maxDepth = MaxRecursionDepth) const
 		{
 			bool isShadowed = IsPointInShadow(computation.HitOffset);
 
@@ -61,20 +63,20 @@ namespace RayTracer
 			                                             computation.Normal,
 			                                             isShadowed);
 
-			Tuple reflected = ReflectedColour(computation);
+			Tuple reflected = ReflectedColour(computation, maxDepth);
 
 			// Blend together the surface and reflection.
 			return surface + reflected;
 		}
 
-		Tuple ColourAt(const Ray& ray) const
+		Tuple ColourAt(const Ray& ray, int maxDepth = MaxRecursionDepth) const
 		{
 			std::vector<Shape::Intersection> intersections = Intersect(ray);
 			std::optional<Shape::Intersection> intersection = Shape::Intersection::Hit(intersections);
 
 			if (!intersection) { return Colour::Black; }
 
-			return ShadeIntersection(intersection->PrepareComputations(ray));
+			return ShadeIntersection(intersection->PrepareComputations(ray), maxDepth);
 		}
 
 		bool IsPointInShadow(Tuple point) const
@@ -93,14 +95,17 @@ namespace RayTracer
 			return false;
 		}
 
-		Tuple ReflectedColour(const Shape::Computation& computation) const
+		Tuple ReflectedColour(const Shape::Computation& computation, int maxDepth = MaxRecursionDepth) const
 		{
+			// Return early if there's no reflection to be done.
+			if (maxDepth <= 0) { return Colour::Black; }
+
 			// Return early if material isn't reflective to save on computation.
 			float materialReflectiveness = computation.Object->Material_.Reflectiveness;
 			if (materialReflectiveness == 0) { return Colour::Black; }
 
 			Ray reflectionRay{computation.HitOffset, computation.Reflection};
-			Tuple colour = ColourAt(reflectionRay);
+			Tuple colour = ColourAt(reflectionRay, --maxDepth);
 
 			return colour * materialReflectiveness;
 		}
